@@ -3,6 +3,7 @@
 #define OPERATIONS_H
 
 #include <stdio.h>
+#include "stack.h"
 
 // operazioni aritmetiche
 int somma(Stack* stack);

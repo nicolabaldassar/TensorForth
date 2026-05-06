@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include "tensor.h"
 
 typedef struct {
     Tensor* tensors_pointer;                // array di puntatori ai tensori nello stack
@@ -12,7 +13,7 @@ typedef struct {
     int top;                                // posizione elemento superiore dello stack
 } Stack;
 
-void initialize_stack(Stack* stack);        // mette top a -1 (stack vuoto)
+Stack* initialize_stack();                  // mette top a -1 (stack vuoto)
 
 bool isEmpty(Stack* stack);                 //
 
@@ -23,3 +24,5 @@ void push(Stack* stack, Tensor* tensor);    // inserisce un tensore in testa all
 Tensor* pop(Stack* stack);                  // ritorna il tensore in testa e lo rimuove dallo stack
 
 Tensor* peek(Stack* stack);                 // ritorna il tensore in testa senza rimuoverlo
+
+#endif

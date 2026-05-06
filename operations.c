@@ -1,5 +1,3 @@
 // Nicola Baldassar SM3201596
 
-#include "stack.h"
-#include "tensor.h"
 #include "operations.h"
