@@ -13,11 +13,13 @@ typedef struct {
     int top;                                // posizione elemento superiore dello stack
 } Stack;
 
-Stack* initialize_stack();                  // mette top a -1 (stack vuoto)
+Stack initializeStack();                   // mette top a -1 (stack vuoto)
 
 bool isEmpty(Stack* stack);                 //
 
 bool isFull(Stack* stack);                  //
+
+int resizeStack(Stack* stack);
 
 void push(Stack* stack, Tensor* tensor);    // inserisce un tensore in testa allo stack
 
