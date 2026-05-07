@@ -56,7 +56,7 @@ int resize_stack(Stack* stack)
 
 void push(Stack* stack, Tensor* tensor)
 {
-    int output = resize_stack(stack);
+    resize_stack(stack);
     stack->top += 1;
     stack->tensors_pointer[stack->top] = tensor;
 }
@@ -70,6 +70,7 @@ Tensor pop(Stack* stack)
     }
     Tensor t = *stack->tensors_pointer[stack->top];
     stack->top -= 1;
+    resize_stack(stack);
     return t;
 }
 

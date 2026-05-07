@@ -11,7 +11,7 @@ int main (int argc, char* argv[])
     Tensor t;
     t.ndim = 1;
     t.size = 1;
-    //push(&stack, &t);
+    push(&stack, &t);
     Tensor t2 = peek(&stack);
     printf("%d\n", t2.ndim);
     return 0;
