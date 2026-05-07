@@ -40,14 +40,16 @@ int resize_stack(Stack* stack)
     {
         stack->dim *= 2;
         stack->tensors_pointer = realloc(stack->tensors_pointer, sizeof(Tensor*) * stack->dim);
+        printf("    (La dimensione dello stack è aumentata a: %d)\n", stack->dim);
         return 2;
     }
     
     // controllo se è occupato per meno di 1/4, in caso dimezzo
     if(stack->top <= (stack->dim / 4) && stack->dim > INITIAL_DIM)
     {
-        stack->dim = stack->dim / 4;
+        stack->dim = stack->dim / 2;
         stack->tensors_pointer = realloc(stack->tensors_pointer, sizeof(Tensor*) * stack->dim);
+        printf("    (La dimensione dello stack è diminuita a: %d)\n", stack->dim);
         return 1;
     }
 
