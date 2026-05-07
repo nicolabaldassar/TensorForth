@@ -6,7 +6,7 @@
 #define INITIAL_DIM 8
 
 // quando abbiamo una struct normale usiamo il punto se abbiamo puntatore a struct si usa la freccia
-Stack initializeStack()
+Stack initialize_stack()
 {
     Stack stack;
     stack.top = -1;
@@ -16,7 +16,7 @@ Stack initializeStack()
     return stack;
 }
 
-bool isEmpty(Stack* stack)
+bool is_empty(Stack* stack)
 {
     if(stack->top <= -1)
         return true;
@@ -24,7 +24,7 @@ bool isEmpty(Stack* stack)
         return false;
 }
 
-bool isFull(Stack* stack)
+bool is_full(Stack* stack)
 {
     if(stack->top >= stack->dim - 1)
         return true;
@@ -33,10 +33,10 @@ bool isFull(Stack* stack)
 }
 
 // 0->rimane come prima; 1->dimezzata: 2->raddoppiata
-int resizeStack(Stack* stack)
+int resize_stack(Stack* stack)
 {
     // controllo se è pieno lo stack, in caso raddoppia
-    if(isFull(stack))
+    if(is_full(stack))
     {
         stack->dim *= 2;
         stack->tensors_pointer = realloc(stack->tensors_pointer, sizeof(Tensor*) * stack->dim);
@@ -44,7 +44,7 @@ int resizeStack(Stack* stack)
     }
     
     // controllo se è occupato per meno di 1/4, in caso dimezzo
-    if(stack->top <= (stack->dim / 4))
+    if(stack->top <= (stack->dim / 4) && stack->dim > INITIAL_DIM)
     {
         stack->dim = stack->dim / 4;
         stack->tensors_pointer = realloc(stack->tensors_pointer, sizeof(Tensor*) * stack->dim);
@@ -52,4 +52,34 @@ int resizeStack(Stack* stack)
     }
 
     return 0;
+}
+
+void push(Stack* stack, Tensor* tensor)
+{
+    int output = resize_stack(stack);
+    stack->top += 1;
+    stack->tensors_pointer[stack->top] = tensor;
+}
+
+Tensor pop(Stack* stack)
+{
+    if(is_empty(stack))
+    {
+        printf("Errore! Stai provando a leggere un elemento da uno stack vuoto.\n");
+        exit(EXIT_FAILURE);
+    }
+    Tensor t = *stack->tensors_pointer[stack->top];
+    stack->top -= 1;
+    return t;
+}
+
+Tensor peek(Stack* stack)
+{
+    if(is_empty(stack))
+    {
+        printf("Errore! Stai provando a leggere un elemento da uno stack vuoto.\n");
+        exit(EXIT_FAILURE);
+    }
+    Tensor t = *stack->tensors_pointer[stack->top];
+    return t;
 }

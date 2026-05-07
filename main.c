@@ -6,10 +6,13 @@
 
 int main (int argc, char* argv[])
 {
-    Stack stack = initializeStack();
-    printf("dim: %d\n", stack.dim);
-    stack.top = 7;
-    int er = resizeStack(&stack);
-    printf("dim: %d; la resizeStack ha tornato: %d\n", stack.dim, er);
+    Stack stack = initialize_stack();
+    //
+    Tensor t;
+    t.ndim = 1;
+    t.size = 1;
+    //push(&stack, &t);
+    Tensor t2 = peek(&stack);
+    printf("%d\n", t2.ndim);
     return 0;
 }
