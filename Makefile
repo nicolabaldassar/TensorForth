@@ -20,3 +20,4 @@ operations.o: operations.c operations.h stack.h
 
 clean:
 	rm *.o
+	rm main
