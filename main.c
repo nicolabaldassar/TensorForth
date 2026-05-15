@@ -4,8 +4,9 @@
 #include "tensor.h"
 #include "operations.h"
 
-void scorri_file(FILE* file, Stack stack);
+void scorri_file(FILE* file, Stack* stack);
 int riempi_filename(FILE* file, char* filename);
+void scegli_operazione(FILE* file, Stack* stack, char current);
 
 int main (int argc, char* argv[])
 {
@@ -26,13 +27,13 @@ int main (int argc, char* argv[])
     Stack stack = initialize_stack();
     
     // lettura del file
-    scorri_file(file, stack);
+    scorri_file(file, &stack);
 
     fclose(file);
     return 0;
 }
 
-void scorri_file(FILE* file, Stack stack)
+void scorri_file(FILE* file, Stack* stack)
 {
     char current;
     char filename[256];
@@ -45,7 +46,8 @@ void scorri_file(FILE* file, Stack stack)
         switch(current)
         {
             case '[':
-                tensor_initialize(0, file);
+                Tensor tensor = tensor_initialize(0, file);
+                push(stack, &tensor);
                 break;
             case '"':
                 filename_dim = riempi_filename(file, filename);
@@ -56,6 +58,7 @@ void scorri_file(FILE* file, Stack stack)
                 break;
             default:
                 //operazione
+                scegli_operazione(file, stack, current);
                 break;
         }
     }
@@ -78,4 +81,17 @@ int riempi_filename(FILE* file, char* filename)
     while(current != '"');
     filename[filename_dim] = '\0';
     return filename_dim;
+}
+
+
+void scegli_operazione(FILE* file, Stack* stack, char current)
+{
+    switch(current)
+    {
+        case 'p':
+            print_tens(stack);
+            break;
+        default:
+            break;
+    }
 }

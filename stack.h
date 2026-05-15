@@ -21,8 +21,8 @@ int resize_stack(Stack* stack);             // controlla se lo stack è pieno lo
 
 void push(Stack* stack, Tensor* tensor);    // inserisce un tensore in testa allo stack
 
-Tensor pop(Stack* stack);                   // ritorna il tensore in testa e lo rimuove dallo stack
+Tensor* pop(Stack* stack);                   // ritorna il tensore in testa e lo rimuove dallo stack
 
-Tensor peek(Stack* stack);                  // ritorna il tensore in testa senza rimuoverlo
+Tensor* peek(Stack* stack);                  // ritorna il tensore in testa senza rimuoverlo
 
 #endif

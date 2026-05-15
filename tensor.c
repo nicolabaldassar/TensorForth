@@ -10,7 +10,7 @@ void truncate_tensor_size(Tensor* tensor);
 
 // questa funzione va ad inizializzare il tensore
 // mode = 0 se vai inizializzato in una dimensione, mode = 1 se va inizializzato a due dimensioni (matrice)
-int tensor_initialize(int mode, FILE* file)
+Tensor tensor_initialize(int mode, FILE* file)
 {
     char current;
     char buffer[256];
@@ -63,13 +63,12 @@ int tensor_initialize(int mode, FILE* file)
 
     truncate_tensor_size(&tensor);
 
-    for(int i = 0; i<tensor.size; i++) {
-        printf("%f ", tensor.data[i]);
-    }
-    printf("\n");
-
+    // for(int i = 0; i<tensor.size; i++) {
+    //     printf("%f ", tensor.data[i]);
+    // }
+    // printf("\n");
     tensor.ref_count = 1;
-    return 0;
+    return tensor;
 }
 
 // questa funzione viene chiamata ogni volta che si aggiunge un elemento al tensore e fa un check sulla sua dimensione,

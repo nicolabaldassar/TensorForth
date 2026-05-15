@@ -63,26 +63,26 @@ void push(Stack* stack, Tensor* tensor)
     stack->tensors_pointer[stack->top] = tensor;
 }
 
-Tensor pop(Stack* stack)
+Tensor* pop(Stack* stack)
 {
     if(is_empty(stack))
     {
         printf("Errore! Stai provando a leggere un elemento da uno stack vuoto.\n");
         exit(EXIT_FAILURE);
     }
-    Tensor t = *stack->tensors_pointer[stack->top];
-    stack->top -= 1;
+    Tensor* t = stack->tensors_pointer[stack->top];
+    stack->top = stack->top - 1;
     resize_stack(stack);
     return t;
 }
 
-Tensor peek(Stack* stack)
+Tensor* peek(Stack* stack)
 {
     if(is_empty(stack))
     {
         printf("Errore! Stai provando a leggere un elemento da uno stack vuoto.\n");
         exit(EXIT_FAILURE);
     }
-    Tensor t = *stack->tensors_pointer[stack->top];
+    Tensor* t = stack->tensors_pointer[stack->top];
     return t;
 }

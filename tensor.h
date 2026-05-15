@@ -16,7 +16,7 @@ typedef struct {
     //off_t offset;       // per saltare eventuali metadati 
 } Tensor;
 
-int tensor_initialize(int mode, FILE* file);
+Tensor tensor_initialize(int mode, FILE* file);
 
 int tensor_delete(Tensor* tensor);          // dealloca la memoria del tensore
 
