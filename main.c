@@ -45,7 +45,7 @@ void scorri_file(FILE* file, Stack stack)
         switch(current)
         {
             case '[':
-                //tensor_initialize(file);
+                tensor_initialize(0, file);
                 break;
             case '"':
                 filename_dim = riempi_filename(file, filename);
