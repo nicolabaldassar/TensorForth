@@ -27,7 +27,7 @@ int main (int argc, char* argv[])
     
     // lettura del file
     scorri_file(file, stack);
-    
+
     fclose(file);
     return 0;
 }

@@ -20,8 +20,8 @@ int tensor_initialize(int mode, FILE* file);
 
 int tensor_delete(Tensor* tensor);          // dealloca la memoria del tensore
 
-int increment_ref_count(Tensor* tensor);    // +1
+void increment_ref_count(Tensor* tensor);    // +1
 
-int decrement_ref_count(Tensor* tensor);    // -1 e check se è 0, in caso chiamo tensor_delete
+void decrement_ref_count(Tensor* tensor);    // -1 e check se è 0, in caso chiamo tensor_delete
 
 #endif

@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
-#define INITIAL_TENSOR_SIZE 2
+#define INITIAL_TENSOR_SIZE 16
 
 void check_tensor_size(Tensor* tensor, int* temp_size);
 void truncate_tensor_size(Tensor* tensor);
@@ -83,6 +83,7 @@ void check_tensor_size(Tensor* tensor, int* temp_size)
             tensor->data = temp;
         } else {
             free(tensor->data);
+            tensor->data = NULL;
             printf("Errore nel riallocare la memoria.\n");
             return;
         }
@@ -101,4 +102,35 @@ void truncate_tensor_size(Tensor* tensor)
         printf("Errore nel troncare la dimensione del tensore.\n");
         return;
     }
+}
+
+
+int tensor_delete(Tensor* tensor)
+{
+    if(tensor->ref_count <= 0) {
+        free(tensor->data);
+        free(tensor);
+        tensor->data = NULL;
+        tensor = NULL;
+        return 0; // eliminato
+    }
+    return -1; // non eliminato
+}
+
+
+void increment_ref_count(Tensor* tensor)
+{
+    tensor->ref_count++;
+    return;
+}
+
+
+void decrement_ref_count(Tensor* tensor)
+{
+    if(tensor->ref_count <= 0) {
+        tensor_delete(tensor);
+    } else {
+        tensor->ref_count--;
+    }
+    return;
 }
