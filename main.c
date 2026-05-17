@@ -48,7 +48,7 @@ void scorri_file(FILE* file, Stack* stack)
         switch(current)
         {
             case '[':
-                Tensor* tensor = tensor_initialize(0, file);
+                Tensor* tensor = tensor_initialize_from_file(0, file);
                 push(stack, tensor);
                 break;
             case '"':
@@ -94,6 +94,9 @@ void scegli_operazione(Stack* stack, char current)
     {
         case 'p':
             print_tens(stack);
+            break;
+        case '+':
+            somma(stack);
             break;
         default:
             break;

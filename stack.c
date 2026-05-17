@@ -84,6 +84,7 @@ Tensor* pop(Stack* stack)
         exit(EXIT_FAILURE);
     }
     Tensor* t = stack->tensors_pointer[stack->top];
+    t->ref_count--;
     stack->top = stack->top - 1;
     resize_stack(stack);
     return t;

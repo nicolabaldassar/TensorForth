@@ -11,7 +11,7 @@ void truncate_tensor_size(Tensor* tensor);
 // questa funzione va ad inizializzare il tensore
 // mode = 0 se vai inizializzato in una dimensione, mode = 1 se va inizializzato a due dimensioni (matrice)
 // viene passata la modalità e il file che preso in input dal programma
-Tensor* tensor_initialize(int mode, FILE* file)
+Tensor* tensor_initialize_from_file(int mode, FILE* file)
 {
     char current;
     char buffer[256];
@@ -21,11 +21,6 @@ Tensor* tensor_initialize(int mode, FILE* file)
 
     Tensor* tensor = malloc(sizeof(Tensor));    // inizializzo sullo stack cosi poi con la free lo posso liberare nella free_tensor
     tensor->size = 0;
-    if(mode == 0) {
-        tensor->ndim = 1;
-    } else {
-        tensor->ndim = 2;
-    }
     
     tensor->data = malloc(sizeof(float) * INITIAL_TENSOR_SIZE);
     current = fgetc(file);
@@ -65,6 +60,16 @@ Tensor* tensor_initialize(int mode, FILE* file)
     truncate_tensor_size(tensor);
 
     tensor->ref_count = 1;
+
+    if(mode == 0) {
+        tensor->ndim = 1;
+        tensor->shape[0] = 1;
+        tensor->shape[1] = tensor->size;;
+    } else {
+        tensor->ndim = 2;
+        // da inizializzare la shape della matrice
+    }
+
     return tensor;
 }
 
@@ -147,5 +152,20 @@ void free_tensor(Tensor **tensor)
     (*tensor)->data = NULL;
     free(*tensor); //
     (*tensor) = NULL;
+    return;
+}
+
+// questa funzione prende due puntatori a tensori e popola il primo con le informazioni del secondo, 
+// tuttavia non copia i dati, ma ne alloca solamente la memoria, questo in visione che i dati saranno
+// comunque assegnati successivamente
+void tensor_structure_copy(Tensor* t1, Tensor* t2)
+{
+    if(t1 == NULL || t2 == NULL)    return;
+    t1->ndim = t2->ndim;
+    t1->shape[0] = t2->shape[0];
+    t1->shape[1] = t2->shape[1];
+    t1->size = t2->size;
+    t1->data = malloc(sizeof(float) * t1->size);
+    t1->ref_count = 1;
     return;
 }

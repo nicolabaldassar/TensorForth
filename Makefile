@@ -1,6 +1,6 @@
 # NICOLA BALDASSAR SM3201596
 CC = gcc-15
-CFLAGS = -O3 
+CFLAGS = -O3 -fopenmp
 
 main: main.o stack.o tensor.o operations.o
 	$(CC) $(CFLAGS) $^ -o $@
