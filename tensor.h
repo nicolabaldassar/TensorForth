@@ -24,8 +24,10 @@ void increment_ref_count(Tensor* tensor);   // +1
 
 void decrement_ref_count(Tensor* tensor);   // -1 e check se è 0, in caso chiamo tensor_delete
 
-void free_tensor(Tensor** tensor);          // libera totalmente un tensore facendo la free della malloc di t->data e del t stesso 
+void free_tensor(Tensor** tensor);
 
 void tensor_structure_copy(Tensor* t1, Tensor* t2);
+
+void resize_tensor(Tensor* t, int rows, int cols);
 
 #endif

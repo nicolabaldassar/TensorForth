@@ -98,6 +98,24 @@ void scegli_operazione(Stack* stack, char current)
         case '+':
             somma(stack);
             break;
+        case '-':
+            differenza(stack);
+            break;
+        case '*':
+            prodotto(stack);
+            break;
+        case '<':
+            minore(stack);
+            break;
+        case '>':
+            maggiore(stack);
+            break;
+        case '=':
+            uguale(stack);
+            break;
+        case 'f':
+            fill(stack);
+            break;
         default:
             break;
     }

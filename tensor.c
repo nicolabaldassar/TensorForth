@@ -148,11 +148,14 @@ void decrement_ref_count(Tensor* tensor)
 void free_tensor(Tensor **tensor)
 {
     if(tensor == NULL || *tensor == NULL) return;
-    free((*tensor)->data);
-    (*tensor)->data = NULL;
-    free(*tensor); //
-    (*tensor) = NULL;
-    return;
+    if((*tensor)->ref_count <= 0)
+    {
+        free((*tensor)->data);
+        (*tensor)->data = NULL;
+        free(*tensor); //
+        (*tensor) = NULL;
+        return;
+    }
 }
 
 // questa funzione prende due puntatori a tensori e popola il primo con le informazioni del secondo, 
@@ -168,4 +171,14 @@ void tensor_structure_copy(Tensor* t1, Tensor* t2)
     t1->data = malloc(sizeof(float) * t1->size);
     t1->ref_count = 1;
     return;
+}
+
+// questa funzione cambia la forma di un tensore
+// viene passato il tensore e il nuovo numero di righe e colonne
+void resize_tensor(Tensor* t, int rows, int cols)
+{
+    if(t == NULL)
+        exit(EXIT_FAILURE);
+    t->shape[0] = rows;
+    t->shape[1] = cols;
 }
