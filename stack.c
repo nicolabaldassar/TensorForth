@@ -73,7 +73,8 @@ void push(Stack* stack, Tensor* tensor)
     stack->tensors_pointer[stack->top] = tensor;
 }
 
-// funzione che estrae il tensore più in testa allo stack e lo consuma
+// funzione che estrae il tensore più in testa allo stack e decrementa l'indice del tensore in cima allo stack
+// tuttavia non lo elimina dallo stack, questo sarà compito di chiama la pop()
 // viene passato lo stack
 Tensor* pop(Stack* stack)
 {
@@ -88,7 +89,8 @@ Tensor* pop(Stack* stack)
     return t;
 }
 
-// funzione che estrae il valore in testa allo stack ma senza consumarlo
+// funzione che estrae il valore in testa allo stack ma senza decrementare l'indice del tensore in testa
+// quindi richiamando la peek/pop viene ripescato lo stesso tensore
 // viene passato lo stack
 Tensor* peek(Stack* stack)
 {

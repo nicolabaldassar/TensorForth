@@ -6,9 +6,9 @@
 #include "stack.h"
 
 // operazioni aritmetiche
-int somma(Stack* stack);
-int differenza(Stack* stack);
-int prodotto(Stack* stack);
+void somma(Stack* stack);
+void differenza(Stack* stack);
+void prodotto(Stack* stack);
 
 // operazioni di comparazione
 int minore(Stack* stack);

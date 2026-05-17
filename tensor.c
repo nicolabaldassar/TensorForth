@@ -11,7 +11,7 @@ void truncate_tensor_size(Tensor* tensor);
 // questa funzione va ad inizializzare il tensore
 // mode = 0 se vai inizializzato in una dimensione, mode = 1 se va inizializzato a due dimensioni (matrice)
 // viene passata la modalità e il file che preso in input dal programma
-Tensor tensor_initialize(int mode, FILE* file)
+Tensor* tensor_initialize(int mode, FILE* file)
 {
     char current;
     char buffer[256];
@@ -19,23 +19,23 @@ Tensor tensor_initialize(int mode, FILE* file)
     bool spazio = true;
     int temp_size = INITIAL_TENSOR_SIZE;
 
-    Tensor tensor;
-    tensor.size = 0;
+    Tensor* tensor = malloc(sizeof(Tensor));    // inizializzo sullo stack cosi poi con la free lo posso liberare nella free_tensor
+    tensor->size = 0;
     if(mode == 0) {
-        tensor.ndim = 1;
+        tensor->ndim = 1;
     } else {
-        tensor.ndim = 2;
+        tensor->ndim = 2;
     }
     
-    tensor.data = malloc(sizeof(float) * INITIAL_TENSOR_SIZE);
+    tensor->data = malloc(sizeof(float) * INITIAL_TENSOR_SIZE);
     current = fgetc(file);
     do
     {
         if(spazio == true) {
             if(current_size > 0) {
-                tensor.data[tensor.size] = atof(buffer);
-                tensor.size = tensor.size + 1;
-                check_tensor_size(&tensor, &temp_size);
+                tensor->data[tensor->size] = atof(buffer);
+                tensor->size = tensor->size + 1;
+                check_tensor_size(tensor, &temp_size);
                 current_size = 0;
                 memset(buffer, 0, sizeof(buffer));  // svuoto il buffer, per usarla importo memset
             }
@@ -62,9 +62,9 @@ Tensor tensor_initialize(int mode, FILE* file)
         }
     } while (current != ']');
 
-    truncate_tensor_size(&tensor);
+    truncate_tensor_size(tensor);
 
-    tensor.ref_count = 1;
+    tensor->ref_count = 1;
     return tensor;
 }
 
@@ -134,5 +134,18 @@ void decrement_ref_count(Tensor* tensor)
     } else {
         tensor->ref_count--;
     }
+    return;
+}
+
+// questa funzione fa la free e setta a NULL sia il tensor->data che il tensore stesso
+// si passa un puntatore al tensore e lo ripulisce completamente liberando tutta la memoria che usa
+// bisogna passarli l'indirizzo del tensore &tensor
+void free_tensor(Tensor **tensor)
+{
+    if(tensor == NULL || *tensor == NULL) return;
+    free((*tensor)->data);
+    (*tensor)->data = NULL;
+    free(*tensor); //
+    (*tensor) = NULL;
     return;
 }

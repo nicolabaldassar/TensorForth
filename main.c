@@ -48,8 +48,8 @@ void scorri_file(FILE* file, Stack* stack)
         switch(current)
         {
             case '[':
-                Tensor tensor = tensor_initialize(0, file);
-                push(stack, &tensor);
+                Tensor* tensor = tensor_initialize(0, file);
+                push(stack, tensor);
                 break;
             case '"':
                 filename_dim = riempi_filename(file, filename);

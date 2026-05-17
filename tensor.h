@@ -16,12 +16,14 @@ typedef struct {
     //off_t offset;       // per saltare eventuali metadati 
 } Tensor;
 
-Tensor tensor_initialize(int mode, FILE* file);
+Tensor* tensor_initialize(int mode, FILE* file);
 
 int tensor_delete(Tensor* tensor);          // dealloca la memoria del tensore
 
-void increment_ref_count(Tensor* tensor);    // +1
+void increment_ref_count(Tensor* tensor);   // +1
 
-void decrement_ref_count(Tensor* tensor);    // -1 e check se è 0, in caso chiamo tensor_delete
+void decrement_ref_count(Tensor* tensor);   // -1 e check se è 0, in caso chiamo tensor_delete
+
+void free_tensor(Tensor** tensor);          // libera totalmente un tensore facendo la free della malloc di t->data e del t stesso 
 
 #endif
