@@ -10,6 +10,7 @@ void truncate_tensor_size(Tensor* tensor);
 
 // questa funzione va ad inizializzare il tensore
 // mode = 0 se vai inizializzato in una dimensione, mode = 1 se va inizializzato a due dimensioni (matrice)
+// viene passata la modalità e il file che preso in input dal programma
 Tensor tensor_initialize(int mode, FILE* file)
 {
     char current;
@@ -63,16 +64,13 @@ Tensor tensor_initialize(int mode, FILE* file)
 
     truncate_tensor_size(&tensor);
 
-    // for(int i = 0; i<tensor.size; i++) {
-    //     printf("%f ", tensor.data[i]);
-    // }
-    // printf("\n");
     tensor.ref_count = 1;
     return tensor;
 }
 
 // questa funzione viene chiamata ogni volta che si aggiunge un elemento al tensore e fa un check sulla sua dimensione,
 // se questa è uguale alla dimensione massima allocata allora va a riallocarlo con spazio doppio
+// viene passato il tensore che si sta costruendo e la grandezza attuale
 void check_tensor_size(Tensor* tensor, int* temp_size)
 {
     if(tensor->size == *temp_size) {
@@ -91,6 +89,7 @@ void check_tensor_size(Tensor* tensor, int* temp_size)
 
 // questa funzione viene chiamata una volta riempito di valori lo spazio in memoria del tensore e va a eliminare,
 // riallocando, tutto lo spazio allocato ma non utilizzato.
+// prende in input il tensore su cui si sta lavorando
 void truncate_tensor_size(Tensor* tensor) 
 {
     float* temp = realloc(tensor->data, sizeof(float) * tensor->size);
@@ -103,7 +102,9 @@ void truncate_tensor_size(Tensor* tensor)
     }
 }
 
-
+// elimina il tensore, ma prima fa il controllo del ref_count
+// prende in input il riferimento al tensore
+// output 0 se il tensore è stato eliminato, -1 altrimenti (se il ref_count non lo permette)
 int tensor_delete(Tensor* tensor)
 {
     if(tensor->ref_count <= 0) {
@@ -116,14 +117,16 @@ int tensor_delete(Tensor* tensor)
     return -1; // non eliminato
 }
 
-
+// aumenta il ref count di un tensore
+// prende in input il tensore
 void increment_ref_count(Tensor* tensor)
 {
     tensor->ref_count++;
     return;
 }
 
-
+// decrementa il ref_count e se questo diventa 0 elimina il tensore
+// prende in input il riferimento al tensore
 void decrement_ref_count(Tensor* tensor)
 {
     if(tensor->ref_count <= 0) {

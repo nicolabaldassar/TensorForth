@@ -48,7 +48,7 @@ int somma_tens(Stack* stack);
 int fill(Stack* stack);
 
 // operazioni di utilità
-int print_tens(Stack* stack);
+void print_tens(Stack* stack);
 
 // operazioni di manipolazione dello stack
 int dup(Stack* stack);

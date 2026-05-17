@@ -1,7 +1,9 @@
 // Nicola Baldassar SM3201596
 #include "operations.h"
 
-int print_tens(Stack* stack)
+// stampa il tensore in cima allo stack, lo stampa e lo consuma
+// prende in input lo stack
+void print_tens(Stack* stack)
 {
     Tensor* t = pop(stack);
     printf("[ ");

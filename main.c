@@ -6,7 +6,7 @@
 
 void scorri_file(FILE* file, Stack* stack);
 int riempi_filename(FILE* file, char* filename);
-void scegli_operazione(FILE* file, Stack* stack, char current);
+void scegli_operazione(Stack* stack, char current);
 
 int main (int argc, char* argv[])
 {
@@ -33,6 +33,8 @@ int main (int argc, char* argv[])
     return 0;
 }
 
+// questa funzione serve per alleggerire il main e contiene tutto l'iter per la lettura del file .tensorforth in input
+// viene passato il file che stiamo leggendo e lo stack
 void scorri_file(FILE* file, Stack* stack)
 {
     char current;
@@ -58,15 +60,16 @@ void scorri_file(FILE* file, Stack* stack)
                 break;
             default:
                 //operazione
-                scegli_operazione(file, stack, current);
+                scegli_operazione(stack, current);
                 break;
         }
     }
     return;
 }
 
-// funzione che salva tutti i caratteri tra due apici in una stringa "filename" pronta per essere consumata
-// da un operazione di lettura o di scrittura su file
+// questa funzione scrive il nome di un file di input/output su una variabile "filename", pronta ad essere usara
+// viene chiamata quando viene letto il caratter doppio apice
+// prende in input il file da cui stiamo leggendo e il puntatore alla stringa su cui scrivere
 int riempi_filename(FILE* file, char* filename)
 {
     char current;
@@ -83,8 +86,9 @@ int riempi_filename(FILE* file, char* filename)
     return filename_dim;
 }
 
-
-void scegli_operazione(FILE* file, Stack* stack, char current)
+// questa operazione contiene uno switch e indirizza alle varie funzioni operazioni in base al char letto
+// prende in input lo stack e il carattere letto
+void scegli_operazione(Stack* stack, char current)
 {
     switch(current)
     {

@@ -5,17 +5,20 @@
 #include "tensor.h"
 #define INITIAL_DIM 8
 
-// quando abbiamo una struct normale usiamo il punto se abbiamo puntatore a struct si usa la freccia
+
+// questa funzione viene chiamata nel main per creare e inizializzare lo stack
+// non ha input, torna un riferimento allo stack inizializzato
 Stack initialize_stack()
 {
     Stack stack;
     stack.top = -1;
-    // usiamo una dimensione iniziale di 8 puntatori che in caso si va a raddoppiare se lo stack si riempie
     stack.dim = INITIAL_DIM;
     stack.tensors_pointer = malloc(sizeof(Tensor*) * stack.dim);
     return stack;
 }
 
+// ritorna true se lo stack è vuoto, false altrimenti
+// viene passato in input lo stack
 bool is_empty(Stack* stack)
 {
     if(stack->top <= -1)
@@ -24,6 +27,8 @@ bool is_empty(Stack* stack)
         return false;
 }
 
+// ritorna true se lo stack è pieno, false altrimenti
+// viene passato in input lo stack
 bool is_full(Stack* stack)
 {
     if(stack->top >= stack->dim - 1)
@@ -32,7 +37,10 @@ bool is_full(Stack* stack)
         return false;
 }
 
-// 0->rimane come prima; 1->dimezzata: 2->raddoppiata
+// questa funzione fa un controllo sulla dimensione dello stack e agisce di conseguenza
+// se lo stack è pieno lo raddoppia, se è pieno per meno di 1/4 lo dimezza, non fa nulla altrimenti
+// ritorna 0 se non fa nulla, 1 se dimezza lo stack, 2 se lo raddoppia
+// prende in input lo stack
 int resize_stack(Stack* stack)
 {
     // controllo se è pieno lo stack, in caso raddoppia
@@ -56,6 +64,8 @@ int resize_stack(Stack* stack)
     return 0;
 }
 
+// funzione che carica un tensore nello stack
+// viene passato lo stack e il tensore da ricaricare
 void push(Stack* stack, Tensor* tensor)
 {
     resize_stack(stack);
@@ -63,6 +73,8 @@ void push(Stack* stack, Tensor* tensor)
     stack->tensors_pointer[stack->top] = tensor;
 }
 
+// funzione che estrae il tensore più in testa allo stack e lo consuma
+// viene passato lo stack
 Tensor* pop(Stack* stack)
 {
     if(is_empty(stack))
@@ -76,6 +88,8 @@ Tensor* pop(Stack* stack)
     return t;
 }
 
+// funzione che estrae il valore in testa allo stack ma senza consumarlo
+// viene passato lo stack
 Tensor* peek(Stack* stack)
 {
     if(is_empty(stack))
