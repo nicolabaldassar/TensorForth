@@ -170,12 +170,79 @@ void uguale(Stack* stack)
     return;   
 }
 
+void and_logico(Stack* stack)
+{
+    Tensor* a = pop(stack);
+    Tensor* b = pop(stack);
+    Tensor* t = malloc(sizeof(Tensor));
+    tensor_structure_copy(t, a);
+    if(a->size != b->size) {
+        printf("I tensori di un'operazione di comparazione devono essere della stessa dimensione.\n");
+        exit(EXIT_FAILURE);
+    }
+    if(!is_binary_tensor(a) || !is_binary_tensor(b)) {
+        printf("I tensori di un'operazione di comparazione devono essere composti solo da 0 e 1.\n");
+        exit(EXIT_FAILURE);
+    }
+    #pragma omp parallel for
+    for(int i = 0; i < t->size; i++) {
+        t->data[i] = a->data[i] && b->data[i];
+    }
+    push(stack, t);
+    free_tensor(&a);
+    free_tensor(&b);
+    return;
+}
+
+void or_logico(Stack* stack)
+{
+    Tensor* a = pop(stack);
+    Tensor* b = pop(stack);
+    Tensor* t = malloc(sizeof(Tensor));
+    tensor_structure_copy(t, a);
+    if(a->size != b->size) {
+        printf("I tensori di un'operazione di comparazione devono essere della stessa dimensione.\n");
+        exit(EXIT_FAILURE);
+    }
+    if(!is_binary_tensor(a) || !is_binary_tensor(b)) {
+        printf("I tensori di un'operazione di comparazione devono essere composti solo da 0 e 1.\n");
+        exit(EXIT_FAILURE);
+    }
+    #pragma omp parallel for
+    for(int i = 0; i < t->size; i++) {
+        t->data[i] = a->data[i] || b->data[i];
+    }
+    push(stack, t);
+    free_tensor(&a);
+    free_tensor(&b);
+    return;
+}
+
+void negazione(Stack* stack)
+{
+    Tensor* a = pop(stack);
+    if(!is_binary_tensor(a)) {
+        printf("I tensori di un'operazione di comparazione devono essere composti solo da 0 e 1.\n");
+        exit(EXIT_FAILURE);
+    }
+    Tensor* t = malloc(sizeof(Tensor));
+    tensor_structure_copy(t, a);
+    #pragma omp parallel for
+    for(int i = 0; i < t->size; i++) {
+        if(a->data[i] == 0.0) {
+            t->data[i] = 1.0;
+        } else {
+            t->data[i] = 0.0;
+        }
+    }
+    push(stack, t);
+    free_tensor(&a);
+}
+
 void fill(Stack* stack)
 {
     Tensor* v = pop(stack);
     Tensor* s = pop(stack);
-    if(v == NULL || s == NULL)
-        exit(EXIT_FAILURE);
     if(s->size > 2) {
         printf("Errore! Impossibile inizializzare un tensore di più di 2 dimensioni!\n");
         exit(EXIT_FAILURE);

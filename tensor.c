@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <omp.h>
 #define INITIAL_TENSOR_SIZE 16
 
 void check_tensor_size(Tensor* tensor, int* temp_size);
@@ -181,4 +182,20 @@ void resize_tensor(Tensor* t, int rows, int cols)
         exit(EXIT_FAILURE);
     t->shape[0] = rows;
     t->shape[1] = cols;
+}
+
+
+bool is_binary_tensor(Tensor* t)
+{
+    if(t == NULL)
+        exit(EXIT_FAILURE);
+    int r = 0;
+    #pragma omp parallel for shared(r)
+    for(int i = 0; i < t->size; i++) {
+        if(r) continue;
+        if(t->data[i] != 0.0 && t->data[i] != 1.0) {
+            r = 1;
+        }
+    }
+    return !r;
 }

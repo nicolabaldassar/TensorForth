@@ -30,4 +30,6 @@ void tensor_structure_copy(Tensor* t1, Tensor* t2);
 
 void resize_tensor(Tensor* t, int rows, int cols);
 
+bool is_binary_tensor(Tensor* t);
+
 #endif

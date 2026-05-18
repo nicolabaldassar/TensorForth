@@ -116,6 +116,15 @@ void scegli_operazione(Stack* stack, char current)
         case 'f':
             fill(stack);
             break;
+        case '&':
+            and_logico(stack);
+            break;
+        case '|':
+            or_logico(stack);
+            break;
+        case '!':
+            negazione(stack);
+            break;
         default:
             break;
     }
