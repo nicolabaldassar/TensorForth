@@ -239,6 +239,31 @@ void negazione(Stack* stack)
     free_tensor(&a);
 }
 
+void maschera(Stack* stack)
+{
+    Tensor* m = pop(stack);
+    Tensor* a = pop(stack);
+    Tensor* b = pop(stack);
+    if(a->size != b->size || b->size != m->size) {
+        printf("I tensori devono essere della stessa dimensione.\n");
+        exit(EXIT_FAILURE);
+    }
+    Tensor* t = malloc(sizeof(Tensor));
+    tensor_structure_copy(t, m);
+    #pragma omp parallel for
+    for(int i = 0; i < t->size; i++) {
+        if(m->data[i] == 1.0) {
+            t->data[i] = a->data[i];
+        } else {
+            t->data[i] = b->data[i];
+        }
+    }
+    push(stack, t);
+    free_tensor(&m);
+    free_tensor(&a);
+    free_tensor(&b);
+}
+
 void fill(Stack* stack)
 {
     Tensor* v = pop(stack);

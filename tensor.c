@@ -36,6 +36,7 @@ Tensor* tensor_initialize_from_file(int mode, FILE* file)
                 memset(buffer, 0, sizeof(buffer));  // svuoto il buffer, per usarla importo memset
             }
             if(isspace(current) == 0) {     // se è diverso da " "
+                printf("char error: %c\n", current);
                 printf("Errore nella forma del tensore.\n");
                 exit(EXIT_FAILURE);
             } else {

@@ -125,6 +125,9 @@ void scegli_operazione(Stack* stack, char current)
         case '!':
             negazione(stack);
             break;
+        case '$':
+            maschera(stack);
+            break;
         default:
             break;
     }
