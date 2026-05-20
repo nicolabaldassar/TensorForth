@@ -137,6 +137,15 @@ void scegli_operazione(Stack* stack, char current)
         case 'c':
             convoluzione(stack);
             break;
+        case 'r':
+            reshape(stack);
+            break;
+        case '_':
+            ravel(stack);
+            break;
+        case '#':
+            get_dim(stack);
+            break;
         default:
             break;
     }

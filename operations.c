@@ -28,7 +28,7 @@ void somma(Stack* stack)
     Tensor* t2 = pop(stack);
     Tensor* t3 = malloc(sizeof(Tensor));
     if(t1->size != t2->size) {
-        printf("Errore! Stai provando a fare una somma con tensori di dimensione diversa!\n");
+        printf("Errore! Stai provando a fare una somma con tensori di dimensione diversa.\n");
         exit(EXIT_FAILURE);
     } else {
         tensor_structure_copy(t3, t1);
@@ -52,7 +52,7 @@ void differenza(Stack* stack)
     Tensor* t2 = pop(stack);
     Tensor* t3 = malloc(sizeof(Tensor));
     if(t1->size != t2->size) {
-        printf("Errore! Stai provando a fare una differenza con tensori di dimensione diversa!\n");
+        printf("Errore! Stai provando a fare una differenza con tensori di dimensione diversa.\n");
         exit(EXIT_FAILURE);
     } else {
         tensor_structure_copy(t3, t1);
@@ -76,7 +76,7 @@ void prodotto(Stack* stack)
     Tensor* t2 = pop(stack);
     Tensor* t3 = malloc(sizeof(Tensor));
     if(t1->size != t2->size) {
-        printf("Errore! Stai provando a fare un prodotto con tensori di dimensione diversa!\n");
+        printf("Errore! Stai provando a fare un prodotto con tensori di dimensione diversa.\n");
         exit(EXIT_FAILURE);
     } else {
         tensor_structure_copy(t3, t1);
@@ -98,7 +98,7 @@ void minore(Stack* stack)
     Tensor* t2 = pop(stack);
     Tensor* t3 = malloc(sizeof(Tensor));
     if(t1->size != t2->size) {
-        printf("Errore! Stai provando a fare una comparazione tra tensori di dimensione diversa!\n");
+        printf("Errore! Stai provando a fare una comparazione tra tensori di dimensione diversa.\n");
         exit(EXIT_FAILURE);
     } else {
         tensor_structure_copy(t3, t1);
@@ -124,7 +124,7 @@ void maggiore(Stack* stack)
     Tensor* t2 = pop(stack);
     Tensor* t3 = malloc(sizeof(Tensor));
     if(t1->size != t2->size) {
-        printf("Errore! Stai provando a fare una comparazione tra tensori di dimensione diversa!\n");
+        printf("Errore! Stai provando a fare una comparazione tra tensori di dimensione diversa.\n");
         exit(EXIT_FAILURE);
     } else {
         tensor_structure_copy(t3, t1);
@@ -150,7 +150,7 @@ void uguale(Stack* stack)
     Tensor* t2 = pop(stack);
     Tensor* t3 = malloc(sizeof(Tensor));
     if(t1->size != t2->size) {
-        printf("Errore! Stai provando a fare una comparazione tra tensori di dimensione diversa!\n");
+        printf("Errore! Stai provando a fare una comparazione tra tensori di dimensione diversa.\n");
         exit(EXIT_FAILURE);
     } else {
         tensor_structure_copy(t3, t1);
@@ -391,12 +391,76 @@ void convoluzione(Stack* stack)
     free_tensor(&a);
 }
 
+void reshape(Stack* stack)
+{
+    Tensor* s = pop(stack);
+    Tensor* a = pop(stack);
+    if(s->ndim == 2) {
+        printf("Il tensore con le nuove dimensioni deve essere monodimensionale.\n");
+        exit(EXIT_FAILURE);
+    }
+    if(s->size > 2) {
+        printf("Il tensore con le nuove dimensioni deve essere di due elementi.\n");
+        exit(EXIT_FAILURE);
+    }
+    // gestisco il caso in cui il tensore passato alla reshape sia di 1 elemento e lo porto alla mia convenzione che
+    // i tensori 1D hanno shape[0] = 1 e shape[1] = size
+    if(s->size == 1) {
+        int col_n = s->data[0];
+        s->size = 2;
+        s->shape[0] = 1;
+        s->shape[1] = 2;
+        s->data = realloc(s->data, sizeof(float) * 2);
+        s->data[0] = 1;
+        s->data[1] = col_n;
+    }
+    if(a->size != s->data[0] * s->data[1]) {
+        printf("Le nuove dimensioni devono essere compatibili con la dimensione del tensore da modificare.\n");
+        exit(EXIT_FAILURE);
+    }
+    if(s->data[0] <= 1) {
+        a->ndim = 1;
+    } else {
+        a->ndim = 2;
+    }
+    a->shape[0] = s->data[0];
+    a->shape[1] = s->data[1];
+    push(stack, a);
+    free_tensor(&s);
+}
+
+void ravel(Stack* stack)
+{
+    Tensor* a = pop(stack);
+    int new_size = a->shape[0] * a->shape[1];
+    a->ndim = 1;
+    a->shape[0] = 1;
+    a->shape[1] = new_size;
+    push(stack, a);
+}
+
+void get_dim(Stack* stack)
+{
+    Tensor* a = pop(stack);
+    Tensor* t = malloc(sizeof(Tensor));
+    t->ndim = 1;
+    t->shape[0] = 1;
+    t->shape[1] = 2;
+    t->size = 2;
+    t->ref_count = 1;
+    t->data = malloc(sizeof(float) * t->size);
+    t->data[0] = a->shape[0];
+    t->data[1] = a->shape[1];
+    push(stack, t);
+    free_tensor(&a);
+}
+
 void fill(Stack* stack)
 {
     Tensor* v = pop(stack);
     Tensor* s = pop(stack);
     if(s->size > 2) {
-        printf("Errore! Impossibile inizializzare un tensore di più di 2 dimensioni!\n");
+        printf("Errore! Impossibile inizializzare un tensore di più di 2 dimensioni.\n");
         exit(EXIT_FAILURE);
     }
     Tensor* t = malloc(sizeof(Tensor));
