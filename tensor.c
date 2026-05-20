@@ -150,6 +150,7 @@ void decrement_ref_count(Tensor* tensor)
 void free_tensor(Tensor **tensor)
 {
     if(tensor == NULL || *tensor == NULL) return;
+    (*tensor)->ref_count--;
     if((*tensor)->ref_count <= 0)
     {
         free((*tensor)->data);
@@ -181,6 +182,11 @@ void resize_tensor(Tensor* t, int rows, int cols)
 {
     if(t == NULL)
         exit(EXIT_FAILURE);
+    if(t->size != rows * cols) {
+        printf("Per fare una reshape il nuovo numero di righe e colonne deve corrispondere alla size del tensore.\n");
+        exit(EXIT_FAILURE);
+    }
+    t->ndim = 2;
     t->shape[0] = rows;
     t->shape[1] = cols;
 }

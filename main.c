@@ -128,6 +128,15 @@ void scegli_operazione(Stack* stack, char current)
         case '$':
             maschera(stack);
             break;
+        case '@':
+            matrix_prod(stack);
+            break;
+        case '.':
+            dot_prod(stack);
+            break;
+        case 'c':
+            convoluzione(stack);
+            break;
         default:
             break;
     }
