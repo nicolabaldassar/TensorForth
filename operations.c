@@ -494,6 +494,52 @@ void relu(Stack* stack)
     push(stack, a);
 }
 
+void min(Stack* stack)
+{
+    Tensor* a = pop(stack);
+    Tensor* b = pop(stack);
+    if(a->size != b->size) {
+        printf("I tensori devono essere della stessa dimensione.\n");
+        exit(EXIT_FAILURE);
+    }
+    Tensor* t = malloc(sizeof(Tensor));
+    tensor_structure_copy(t, a);
+    #pragma omp parallel for
+    for(int i = 0; i < t->size; i++) {
+        if(a->data[i] < b->data[i]) {
+            t->data[i] = a->data[i];
+        } else {
+            t->data[i] = b->data[i];
+        }
+    }
+    push(stack, t);
+    free_tensor(&a);
+    free_tensor(&b);
+}
+
+void max(Stack* stack)
+{
+    Tensor* a = pop(stack);
+    Tensor* b = pop(stack);
+    if(a->size != b->size) {
+        printf("I tensori devono essere della stessa dimensione.\n");
+        exit(EXIT_FAILURE);
+    }
+    Tensor* t = malloc(sizeof(Tensor));
+    tensor_structure_copy(t, a);
+    #pragma omp parallel for
+    for(int i = 0; i < t->size; i++) {
+        if(a->data[i] > b->data[i]) {
+            t->data[i] = a->data[i];
+        } else {
+            t->data[i] = b->data[i];
+        }
+    }
+    push(stack, t);
+    free_tensor(&a);
+    free_tensor(&b);
+}
+
 void fill(Stack* stack)
 {
     Tensor* v = pop(stack);

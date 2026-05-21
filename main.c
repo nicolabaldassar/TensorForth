@@ -152,12 +152,12 @@ void scegli_operazione(Stack* stack, char current)
         case 'R':
             relu(stack);
             break;
-        // case 'm':
-        //     min(stack);
-        //     break;
-        // case 'M':
-        //     max(stack);
-        //     break;
+        case 'm':
+            min(stack);
+            break;
+        case 'M':
+            max(stack);
+            break;
         default:
             // tornare errrore per char sconosciuto
             break;
