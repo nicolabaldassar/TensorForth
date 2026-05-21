@@ -159,6 +159,7 @@ void scegli_operazione(Stack* stack, char current)
         //     max(stack);
         //     break;
         default:
+            // tornare errrore per char sconosciuto
             break;
     }
 }

@@ -30,34 +30,31 @@ Tensor* tensor_initialize_from_file(int mode, FILE* file)
         if(spazio == true) {
             if(current_size > 0) {
                 tensor->data[tensor->size] = atof(buffer);
-                tensor->size = tensor->size + 1;
+                tensor->size++;
                 check_tensor_size(tensor, &temp_size);
                 current_size = 0;
-                memset(buffer, 0, sizeof(buffer));  // svuoto il buffer, per usarla importo memset
+                memset(buffer, 0, sizeof(buffer));  // svuoto il buffer se ho scritto il numero corrente
             }
-            if(isspace(current) == 0) {     // se è diverso da " "
-                printf("char error: %c\n", current);
+            if(isspace(current) == 0) {  // se è diverso da " "
                 printf("Errore nella forma del tensore.\n");
                 exit(EXIT_FAILURE);
             } else {
                 spazio = false;
-                current = fgetc(file);
             }
         } else {
-            if(isspace(current) != 0) {     // se è " "
-                printf("Errore nella forma del tensore (doppio spazio!).\n");
-                exit(EXIT_FAILURE);
-            } else if (isdigit(current) || current == '.') {
+            while(isspace(current) != 0) {  // se è " "
+                current = fgetc(file);
+            }
+            if(isdigit(current) || current == '.' || current == '-') {
                 buffer[current_size] = current;
                 current_size++;
-                //
                 current = fgetc(file);
-                if(!isdigit(current) && current != '.') {
+                if(!isdigit(current) && current != '.' && current != '-') {
                     spazio = true;
                 }
             }
         }
-    } while (current != ']');
+    } while(current != ']');
 
     truncate_tensor_size(tensor);
 
