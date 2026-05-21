@@ -2,6 +2,7 @@
 #include "operations.h"
 #include <stdlib.h>
 #include <omp.h>
+#include <time.h> // usato per la rand_tens per generare un tensore sempre diverso, capire se serve
 
 // stampa il tensore in cima allo stack e lo consuma
 // prende in input lo stack
@@ -453,6 +454,44 @@ void get_dim(Stack* stack)
     t->data[1] = a->shape[1];
     push(stack, t);
     free_tensor(&a);
+}
+
+void rand_tens(Stack* stack)
+{
+    Tensor* s = pop(stack);
+    if(s->ndim != 1 || s->size > 2) {
+        printf("Il tensore che deve essere 1D e al massimo di 2 elementi.\n");
+        exit(EXIT_FAILURE);
+    }
+    Tensor* t = malloc(sizeof(Tensor));
+    if(s->data[0] == 1) {
+        t->ndim = 1;
+    } else {
+        t->ndim = 2;
+    }
+    t->shape[0] = s->data[0];
+    t->shape[1] = s->data[1];
+    t->size = t->shape[0] * t->shape[1];
+    t->data = malloc(sizeof(float) * t->size);
+    t->ref_count = 1;
+    srand(time(NULL));
+    for(int i = 0; i < t->size; i++) {
+        t->data[i] = (float)rand() / (float)RAND_MAX ;
+    }
+    push(stack, t);
+    free_tensor(&s);
+}
+
+void relu(Stack* stack)
+{
+    Tensor* a = pop(stack);
+    #pragma omp parallel for
+    for(int i = 0; i < a->size; i++) {
+        if(a->data[i] < 0) {
+            a->data[i] = 0.0f;
+        }
+    }
+    push(stack, a);
 }
 
 void fill(Stack* stack)
