@@ -601,3 +601,32 @@ void dup(Stack* stack)
     increment_ref_count(t);
     push(stack, t);
 }
+
+void swap(Stack* stack)
+{
+    if(stack->top < 1) {    // ricordo che lo stack ha il primo elemento in indice 0
+        printf("Lo stack non ha sufficienti elementi per eseguire la swap.\n");
+        exit(EXIT_FAILURE);
+    }
+    // provo a farla senza usare la pop che nel caso di tensori con ref count > 1 mi torna una copia del tensore e non l'originale
+    Tensor* a = stack->tensors_pointer[stack->top];
+    Tensor* b = stack->tensors_pointer[stack->top-1];
+    stack->tensors_pointer[stack->top] = b;
+    stack->tensors_pointer[stack->top-1] = a;
+    return;
+}
+
+void over(Stack* stack)
+{
+    Tensor* t = stack->tensors_pointer[stack->top - 1];
+    stack->tensors_pointer[stack->top - 1]->ref_count++;
+    push(stack, t);
+    return;
+}
+
+void drop(Stack* stack)
+{
+    Tensor* t = pop(stack);
+    free_tensor(&t);
+    return;
+}

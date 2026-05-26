@@ -94,7 +94,7 @@ Tensor* pop(Stack* stack)
         stack->top--;
         resize_stack(stack);
         return t_copy;
-    }
+    }        
     t->ref_count--;
     stack->top--;
     resize_stack(stack);

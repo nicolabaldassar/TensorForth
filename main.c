@@ -164,6 +164,15 @@ void scegli_operazione(Stack* stack, char current)
         case 'd':
             dup(stack);
             break;
+        case 's':
+            swap(stack);
+            break;
+        case 'o':
+            over(stack);
+            break;
+        case 'D':
+            drop(stack);
+            break;
         default:
             // tornare errrore per char sconosciuto
             break;
