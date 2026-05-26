@@ -4,23 +4,6 @@
 #include <omp.h>
 #include <time.h> // usato per la rand_tens per generare un tensore sempre diverso, capire se serve
 
-// stampa il tensore in cima allo stack e lo consuma
-// prende in input lo stack
-void print_tens(Stack* stack)
-{
-    Tensor* t = pop(stack);
-
-    printf("Tensor(shape=[%d, %d], data=[ ", t->shape[0], t->shape[1]);
-    for(int i = 0; i < t->size; i++)
-    {
-        printf("%f ", t->data[i]);
-    }
-    printf("])\n");
-
-    free_tensor(&t);
-    return;
-}
-
 // consuma i due tensori in cima allo stack e ne crea un terzo che è la loro somma
 // prende in input lo stack
 void somma(Stack* stack)
@@ -540,6 +523,26 @@ void max(Stack* stack)
     free_tensor(&b);
 }
 
+void somma_tens(Stack* stack)
+{
+    Tensor* a = pop(stack);
+    Tensor* t = malloc(sizeof(Tensor));
+    t->ndim = 1;
+    t->size = 1;
+    t->shape[0] = 1;
+    t->shape[1] = 1;
+    t->ref_count = 1;
+    t->data = malloc(sizeof(float) * t->size);
+    float sum = 0;
+    #pragma omp parallel for reduction(+:sum)
+    for(int i = 0; i < a->size; i++) {
+        sum += a->data[i];
+    }
+    t->data[0] = sum;
+    push(stack, t);
+    free_tensor(&a);
+}
+
 void fill(Stack* stack)
 {
     Tensor* v = pop(stack);
@@ -573,4 +576,28 @@ void fill(Stack* stack)
     free_tensor(&s);
 }
 
-// se non metto lo spazio finale in un tensore non capta l'errore giusto
+// stampa il tensore in cima allo stack e lo consuma
+// prende in input lo stack
+void print_tens(Stack* stack)
+{
+    Tensor* t = pop(stack);
+    printf("Tensor(shape=[%d, %d], data=[ ", t->shape[0], t->shape[1]);
+    for(int i = 0; i < t->size; i++)
+    {
+        printf("%f ", t->data[i]);
+    }
+    printf("])\n");
+    //free_tensor(&t);
+    return;
+}
+
+void dup(Stack* stack)
+{
+    if(is_empty(stack)) {
+        printf("Impossibile duplicare un elemento se lo stack è vuoto.\n");
+        exit(EXIT_FAILURE);
+    }
+    Tensor* t = peek(stack);
+    increment_ref_count(t);
+    push(stack, t);
+}

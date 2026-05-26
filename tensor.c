@@ -55,6 +55,7 @@ Tensor* tensor_initialize_from_file(int mode, FILE* file)
             }
         }
     } while(current != ']');
+    // errore se manca lo spazio finale
 
     truncate_tensor_size(tensor);
 
@@ -202,4 +203,19 @@ bool is_binary_tensor(Tensor* t)
         }
     }
     return !r;
+}
+
+Tensor* tensor_copy(Tensor* t)
+{
+    Tensor* new = malloc(sizeof(Tensor));
+    new->ndim = t->ndim;
+    new->shape[0] = t->shape[0];
+    new->shape[1] = t->shape[1];
+    new->size = t->size;
+    new->data = malloc(sizeof(float) * new->size);
+    for(int i = 0; i < new->size; i++) {
+        new->data[i] = t->data[i];
+    }
+    new->ref_count = 1;
+    return new;
 }

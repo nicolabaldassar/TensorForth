@@ -88,8 +88,15 @@ Tensor* pop(Stack* stack)
         printf("Errore! Il tensore sullo stack è NULL;\n");
         exit(EXIT_FAILURE);
     }
+    if(t->ref_count > 1) {
+        Tensor* t_copy = tensor_copy(t);
+        t->ref_count--;
+        stack->top--;
+        resize_stack(stack);
+        return t_copy;
+    }
     t->ref_count--;
-    stack->top = stack->top - 1;
+    stack->top--;
     resize_stack(stack);
     return t;
 }

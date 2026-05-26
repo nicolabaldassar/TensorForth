@@ -32,4 +32,6 @@ void resize_tensor(Tensor* t, int rows, int cols);
 
 bool is_binary_tensor(Tensor* t);
 
+Tensor* tensor_copy(Tensor* t);
+
 #endif

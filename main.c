@@ -158,6 +158,12 @@ void scegli_operazione(Stack* stack, char current)
         case 'M':
             max(stack);
             break;
+        case 'S':
+            somma_tens(stack);
+            break;
+        case 'd':
+            dup(stack);
+            break;
         default:
             // tornare errrore per char sconosciuto
             break;
