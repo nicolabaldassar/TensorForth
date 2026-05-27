@@ -6,6 +6,7 @@
 #include <omp.h>
 #define INITIAL_TENSOR_SIZE 16
 
+// forward declaration necessarie per funzioni che sono definite dopo ma presenti in funzioni definite prima
 void check_tensor_size(Tensor* tensor, int* temp_size);
 void truncate_tensor_size(Tensor* tensor);
 

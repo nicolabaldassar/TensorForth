@@ -1,6 +1,8 @@
 // Nicola Baldassar SM3201596
 #include "operations.h"
 #include <stdlib.h>
+#include <sys/mman.h>   // per la mmap
+#include <sys/stat.h>   // per la stat
 #include <omp.h>
 #include <time.h> // usato per la rand_tens per generare un tensore sempre diverso, capire se serve
 
@@ -628,5 +630,114 @@ void drop(Stack* stack)
 {
     Tensor* t = pop(stack);
     free_tensor(&t);
+    return;
+}
+
+void read_pgm(Stack* stack, char* filename, int filename_dim)   // da parallelizzare
+{
+    if(filename_dim <= 0) {
+        printf("Non è presente un file su cui operare.\n");
+        exit(EXIT_FAILURE);
+    }
+    FILE* file = fopen(filename, "rb");
+    if(file == NULL)
+    {
+        printf("Errore nell'apertura del file.\n");
+        exit(EXIT_FAILURE);
+    }
+    //
+    struct stat buffer;
+	if(stat(filename, &buffer) == -1) {
+        printf("Errore nel salvataggio della size\n");
+		fclose(file);
+		exit(EXIT_FAILURE);
+    }
+    int width;
+    int height;
+    int offset;
+    off_t size;
+    char* data;
+    int valori_convertiti = fscanf(file, "%*s %i %i %*i\n", &width, &height);
+    if(valori_convertiti != 2) {
+		printf("Errore! EOF\n");
+		fclose(file);
+	exit(EXIT_FAILURE);
+	}
+    offset = ftell(file);
+    if(offset == -1) {
+        printf("Errore nel salvataggio dell'offset\n");
+		fclose(file);
+		exit(EXIT_FAILURE);
+    }
+    size = buffer.st_size;
+    data = mmap((void*)0, size, PROT_READ, MAP_SHARED, fileno(file), 0);
+    if(data == MAP_FAILED) {
+		printf("Errore nel mappare in memoria il file. ");
+		fclose(file);
+		exit(EXIT_FAILURE);
+	}
+    //
+    Tensor* t = malloc(sizeof(Tensor));
+    if(height <= 1) {
+        t->ndim = 1;
+    } else {
+        t->ndim = 2;
+    }
+    t->shape[0] = height;
+    t->shape[1] = width;
+    t->size = t->shape[0] * t->shape[1];
+    t->ref_count = 1;
+    t->data = malloc(sizeof(float) * t->size);
+    unsigned char* pixels = (unsigned char*)data + offset;
+    #pragma omp parallel for
+    for(int i = 0; i < t->size; i++) {
+        t->data[i] = (float)pixels[i] / 255;
+    }
+    push(stack, t);
+    munmap(data, size);
+    fclose(file);
+    return;
+}
+
+void write_pgm(Stack* stack, char* filename, int filename_dim)  //da parallelizzare
+{
+    if(filename_dim <= 0) {
+        printf("Non è presente un file su cui operare.\n");
+        exit(EXIT_FAILURE);
+    }
+    FILE* file = fopen(filename, "wb");
+    if(file == NULL)
+    {
+        printf("Errore nell'apertura del file.\n");
+        exit(EXIT_FAILURE);
+    }
+    Tensor* t = pop(stack);
+    fprintf(file, "P5\n%d %d\n255\n", t->shape[1], t->shape[0]);
+    unsigned char* data = malloc(sizeof(unsigned char) * t->size);
+    #pragma omp parallel for
+    for(int i = 0; i < t->size; i++) {
+        float current = t->data[i];
+        if(current < 0) {
+            current = 0.0f;
+        }
+        if(current > 1) {
+            current = 1.0f;
+        }
+        data[i] = (unsigned char)(current * 255.0f);
+    }
+    if(fwrite(data, sizeof(unsigned char), t->size, file) != t->size) {
+        printf("Errore nella scrittura dell'immagine.\n");
+        free(data);
+        fclose(file);
+        exit(EXIT_FAILURE);
+    }
+    free(data);
+    fclose(file);
+    free_tensor(&t);
+}
+
+
+void read_file(Stack* stack, char* filename)
+{
     return;
 }

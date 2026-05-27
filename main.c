@@ -5,8 +5,8 @@
 #include "operations.h"
 
 void scorri_file(FILE* file, Stack* stack);
-int riempi_filename(FILE* file, char* filename);
-void scegli_operazione(Stack* stack, char current);
+int salva_filename(Stack* stack, FILE* file);
+void scegli_operazione(Stack* stack, char current, char* filename, int filename_dim);
 
 int main (int argc, char* argv[])
 {
@@ -52,7 +52,8 @@ void scorri_file(FILE* file, Stack* stack)
                 push(stack, tensor);
                 break;
             case '"':
-                filename_dim = riempi_filename(file, filename);
+                //filename_dim = riempi_filename(file, filename);
+                salva_filename(stack, file);
                 break;
             case '\n':
                 break;
@@ -60,35 +61,51 @@ void scorri_file(FILE* file, Stack* stack)
                 break;
             default:
                 //operazione
-                scegli_operazione(stack, current);
+                scegli_operazione(stack, current, filename, filename_dim);
                 break;
         }
     }
     return;
 }
 
-// questa funzione scrive il nome di un file di input/output su una variabile "filename", pronta ad essere usara
-// viene chiamata quando viene letto il caratter doppio apice
+// questa funzione scrive il nome di un file di input/output su una variabile "filename", pronta ad essere usata
+// viene chiamata quando viene letto il carattere doppio apice
 // prende in input il file da cui stiamo leggendo e il puntatore alla stringa su cui scrivere
-int riempi_filename(FILE* file, char* filename)
+// int riempi_filename(FILE* file, char* filename)
+// {
+//     char current;
+//     int filename_dim = 0;
+//     current = fgetc(file);
+//     do
+//     {
+//         filename[filename_dim] = current;
+//         current = fgetc(file);
+//         filename_dim++;
+//     }
+//     while(current != '"');
+//     filename[filename_dim] = '\0';
+//     return filename_dim;
+// }
+
+void salva_filename(Stack* stack, FILE* file)
 {
-    char current;
+    char filename[256];
     int filename_dim = 0;
+    char current;
     current = fgetc(file);
-    do
+    while(current != '"')
     {
         filename[filename_dim] = current;
-        current = fgetc(file);
         filename_dim++;
+        current = fgetc(file);
     }
-    while(current != '"');
     filename[filename_dim] = '\0';
-    return filename_dim;
+    push(stack, filename);
 }
 
 // questa operazione contiene uno switch e indirizza alle varie funzioni operazioni in base al char letto
 // prende in input lo stack e il carattere letto
-void scegli_operazione(Stack* stack, char current)
+void scegli_operazione(Stack* stack, char current, char* filename, int filename_dim)
 {
     switch(current)
     {
@@ -172,6 +189,15 @@ void scegli_operazione(Stack* stack, char current)
             break;
         case 'D':
             drop(stack);
+            break;
+        case '(':
+            read_pgm(stack, filename, filename_dim);
+            break;
+        case ')':
+            write_pgm(stack, filename, filename_dim);
+            break;
+        case '{':
+            read_file(stack);
             break;
         default:
             // tornare errrore per char sconosciuto
