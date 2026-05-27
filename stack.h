@@ -26,6 +26,6 @@ Tensor* pop(Stack* stack);                   // ritorna il tensore in testa e lo
 
 Tensor* peek(Stack* stack);                  // ritorna il tensore in testa senza rimuoverlo
 
-Tensor* pop_filename(Stack* stack);
+char* pop_filename(Stack* stack);    // prende il filename dallo stack e popola la stringa passata col suo contenuto
 
 #endif

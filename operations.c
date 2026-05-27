@@ -635,13 +635,7 @@ void drop(Stack* stack)
 
 void read_pgm(Stack* stack)
 {
-    Tensor* fn = pop_filename(stack);
-    char filename[fn->size];
-    //ciclo corto arriva al massimo a 256, non ha senso parallelizzare
-    for(int i = 0; i < fn->size; i++) {
-        filename[i] = (char)fn->data[i];
-    }
-    filename[fn->size] = '\0';
+    char* filename = pop_filename(stack);
     FILE* file = fopen(filename, "rb");
     if(file == NULL)
     {
@@ -699,19 +693,12 @@ void read_pgm(Stack* stack)
     push(stack, t);
     munmap(data, size);
     fclose(file);
-    free_tensor(&fn);
     return;
 }
 
 void write_pgm(Stack* stack)
 {
-    Tensor* fn = pop_filename(stack);
-    char filename[fn->size];
-    //ciclo corto arriva al massimo a 256, non ha senso parallelizzare
-    for(int i = 0; i < fn->size; i++) {
-        filename[i] = (char)fn->data[i];
-    }
-    filename[fn->size] = '\0';
+    char* filename = pop_filename(stack);
     FILE* file = fopen(filename, "wb");
     if(file == NULL)
     {
@@ -719,8 +706,7 @@ void write_pgm(Stack* stack)
         exit(EXIT_FAILURE);
     }
     Tensor* t = pop(stack);
-
-    resize_tensor(t, 3, 4);
+    //resize_tensor(t, 3, 4);
 
     fprintf(file, "P5\n%d %d\n255\n", t->shape[1], t->shape[0]);
     unsigned char* data = malloc(sizeof(unsigned char) * t->size);

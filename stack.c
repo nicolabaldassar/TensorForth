@@ -123,7 +123,7 @@ Tensor* peek(Stack* stack)
     return t;
 }
 
-Tensor* pop_filename(Stack* stack)
+char*  pop_filename(Stack* stack)
 {
     if(is_empty(stack))
     {
@@ -138,10 +138,21 @@ Tensor* pop_filename(Stack* stack)
     if(t->isFilename == false) {
         printf("L'elemento estratto dallo stack non è un filename valido.\n");
         exit(EXIT_FAILURE);
-    }      
+    }
     t->ref_count--;
     stack->top--;
     resize_stack(stack);
-    return t;
+
+    // scriviamo nella stringa passata il contenuto di filename
+
+    char* filename = malloc(sizeof(char) * (t->size + 1));
+    //ciclo corto arriva al massimo a 256, non ha senso parallelizzare
+    for(int i = 0; i < t->size; i++) {
+        filename[i] = (char)t->data[i];
+    }
+    filename[t->size] = '\0';
+    free_tensor(&t);
+
+    return filename;
 
 }
