@@ -633,12 +633,15 @@ void drop(Stack* stack)
     return;
 }
 
-void read_pgm(Stack* stack, char* filename, int filename_dim)   // da parallelizzare
+void read_pgm(Stack* stack)
 {
-    if(filename_dim <= 0) {
-        printf("Non è presente un file su cui operare.\n");
-        exit(EXIT_FAILURE);
+    Tensor* fn = pop_filename(stack);
+    char filename[fn->size];
+    //ciclo corto arriva al massimo a 256, non ha senso parallelizzare
+    for(int i = 0; i < fn->size; i++) {
+        filename[i] = (char)fn->data[i];
     }
+    filename[fn->size] = '\0';
     FILE* file = fopen(filename, "rb");
     if(file == NULL)
     {
@@ -661,7 +664,7 @@ void read_pgm(Stack* stack, char* filename, int filename_dim)   // da paralleliz
     if(valori_convertiti != 2) {
 		printf("Errore! EOF\n");
 		fclose(file);
-	exit(EXIT_FAILURE);
+	    exit(EXIT_FAILURE);
 	}
     offset = ftell(file);
     if(offset == -1) {
@@ -696,15 +699,19 @@ void read_pgm(Stack* stack, char* filename, int filename_dim)   // da paralleliz
     push(stack, t);
     munmap(data, size);
     fclose(file);
+    free_tensor(&fn);
     return;
 }
 
-void write_pgm(Stack* stack, char* filename, int filename_dim)  //da parallelizzare
+void write_pgm(Stack* stack)
 {
-    if(filename_dim <= 0) {
-        printf("Non è presente un file su cui operare.\n");
-        exit(EXIT_FAILURE);
+    Tensor* fn = pop_filename(stack);
+    char filename[fn->size];
+    //ciclo corto arriva al massimo a 256, non ha senso parallelizzare
+    for(int i = 0; i < fn->size; i++) {
+        filename[i] = (char)fn->data[i];
     }
+    filename[fn->size] = '\0';
     FILE* file = fopen(filename, "wb");
     if(file == NULL)
     {
@@ -712,6 +719,9 @@ void write_pgm(Stack* stack, char* filename, int filename_dim)  //da parallelizz
         exit(EXIT_FAILURE);
     }
     Tensor* t = pop(stack);
+
+    resize_tensor(t, 3, 4);
+
     fprintf(file, "P5\n%d %d\n255\n", t->shape[1], t->shape[0]);
     unsigned char* data = malloc(sizeof(unsigned char) * t->size);
     #pragma omp parallel for
@@ -737,7 +747,7 @@ void write_pgm(Stack* stack, char* filename, int filename_dim)  //da parallelizz
 }
 
 
-void read_file(Stack* stack, char* filename)
+void read_file(Stack* stack)
 {
     return;
 }

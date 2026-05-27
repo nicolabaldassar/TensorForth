@@ -57,10 +57,10 @@ void over(Stack* stack);
 void drop(Stack* stack);
 
 // I/O operations
-void read_pgm(Stack* stack, char* filename, int filename_dim);
-void write_pgm(Stack* stack, char* filename, int filename_dim);
-void read_file(Stack* stack, char* filename);
-void write_file(Stack* stack, char* filename);
+void read_pgm(Stack* stack);
+void write_pgm(Stack* stack);
+void read_file(Stack* stack);
+void write_file(Stack* stack);
 
 
 

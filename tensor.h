@@ -14,9 +14,12 @@ typedef struct {
     //FILE* fd;           // puntatore al file da accedere
     int ref_count;      // numero di riferimenti al tensore, per decidere se eliminarlo o no
     //off_t offset;       // per saltare eventuali metadati 
+    bool isFilename;    // se vera questo tensore contiene un file name in "data" e in "size" la lunghezza. gli altri campi sono ignorati
 } Tensor;
 
 Tensor* tensor_initialize_from_file(int mode, FILE* file);
+
+void truncate_tensor_size(Tensor* tensor);
 
 int tensor_delete(Tensor* tensor);          // dealloca la memoria del tensore
 

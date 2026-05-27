@@ -61,6 +61,7 @@ Tensor* tensor_initialize_from_file(int mode, FILE* file)
     truncate_tensor_size(tensor);
 
     tensor->ref_count = 1;
+    tensor->isFilename = false;
 
     if(mode == 0) {
         tensor->ndim = 1;
@@ -79,6 +80,10 @@ Tensor* tensor_initialize_from_file(int mode, FILE* file)
 // viene passato il tensore che si sta costruendo e la grandezza attuale
 void check_tensor_size(Tensor* tensor, int* temp_size)
 {
+    if(tensor->isFilename) {
+        printf("Impossibile eseguire quesa operazione su un filename.\n");
+        exit(EXIT_FAILURE);
+    }
     if(tensor->size == *temp_size) {
         *temp_size = *temp_size * 2;
         float* temp = realloc(tensor->data, sizeof(float) * (*temp_size));
@@ -172,6 +177,7 @@ void tensor_structure_copy(Tensor* t1, Tensor* t2)
     t1->size = t2->size;
     t1->data = malloc(sizeof(float) * t1->size);
     t1->ref_count = 1;
+    t1->isFilename = t2->isFilename;
     return;
 }
 
@@ -181,6 +187,10 @@ void resize_tensor(Tensor* t, int rows, int cols)
 {
     if(t == NULL)
         exit(EXIT_FAILURE);
+    if(t->isFilename) {
+        printf("Impossibile eseguire quesa operazione su un filename.\n");
+        exit(EXIT_FAILURE);
+    }
     if(t->size != rows * cols) {
         printf("Per fare una reshape il nuovo numero di righe e colonne deve corrispondere alla size del tensore.\n");
         exit(EXIT_FAILURE);
@@ -195,6 +205,10 @@ bool is_binary_tensor(Tensor* t)
 {
     if(t == NULL)
         exit(EXIT_FAILURE);
+    if(t->isFilename) {
+        printf("Impossibile eseguire quesa operazione su un filename.\n");
+        exit(EXIT_FAILURE);
+    }
     int r = 0;
     #pragma omp parallel for shared(r)
     for(int i = 0; i < t->size; i++) {
@@ -208,6 +222,10 @@ bool is_binary_tensor(Tensor* t)
 
 Tensor* tensor_copy(Tensor* t)
 {
+    if(t->isFilename) {
+        printf("Impossibile eseguire quesa operazione su un filename.\n");
+        exit(EXIT_FAILURE);
+    }
     Tensor* new = malloc(sizeof(Tensor));
     new->ndim = t->ndim;
     new->shape[0] = t->shape[0];

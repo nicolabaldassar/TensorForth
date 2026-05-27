@@ -88,6 +88,10 @@ Tensor* pop(Stack* stack)
         printf("Errore! Il tensore sullo stack è NULL;\n");
         exit(EXIT_FAILURE);
     }
+    if(t->isFilename) {
+        printf("Impossibile eseguire quesa operazione (pop) su un filename.\n");
+        exit(EXIT_FAILURE);
+    }
     if(t->ref_count > 1) {
         Tensor* t_copy = tensor_copy(t);
         t->ref_count--;
@@ -112,5 +116,32 @@ Tensor* peek(Stack* stack)
         exit(EXIT_FAILURE);
     }
     Tensor* t = stack->tensors_pointer[stack->top];
+    if(t->isFilename) {
+        printf("Impossibile eseguire quesa operazione su un filename.\n");
+        exit(EXIT_FAILURE);
+    }
     return t;
+}
+
+Tensor* pop_filename(Stack* stack)
+{
+    if(is_empty(stack))
+    {
+        printf("Errore! Stai provando a leggere un elemento da uno stack vuoto.\n");
+        exit(EXIT_FAILURE);
+    }
+    Tensor* t = stack->tensors_pointer[stack->top];
+    if(t == NULL) {
+        printf("Errore! Il tensore sullo stack è NULL;\n");
+        exit(EXIT_FAILURE);
+    }
+    if(t->isFilename == false) {
+        printf("L'elemento estratto dallo stack non è un filename valido.\n");
+        exit(EXIT_FAILURE);
+    }      
+    t->ref_count--;
+    stack->top--;
+    resize_stack(stack);
+    return t;
+
 }

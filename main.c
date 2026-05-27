@@ -1,11 +1,12 @@
 // Nicola Baldassar SM3201596
 #include <stdio.h>
+#include <stdlib.h>
 #include "stack.h"
 #include "tensor.h"
 #include "operations.h"
 
 void scorri_file(FILE* file, Stack* stack);
-int salva_filename(Stack* stack, FILE* file);
+void salva_filename(Stack* stack, FILE* file);
 void scegli_operazione(Stack* stack, char current, char* filename, int filename_dim);
 
 int main (int argc, char* argv[])
@@ -89,18 +90,30 @@ void scorri_file(FILE* file, Stack* stack)
 
 void salva_filename(Stack* stack, FILE* file)
 {
-    char filename[256];
+    Tensor* t = malloc(sizeof(Tensor));
+    t->size = 256;
     int filename_dim = 0;
+    t->data = malloc(sizeof(float) * t->size);
+    t->isFilename = true;
+    // allochiamo per sicurezza valori non necessari in quanto Filename
+    t->ndim = 0;
+    t->shape[0] = 0;
+    t->shape[1] = 0;
+    t->ref_count = 0;
+    //
     char current;
     current = fgetc(file);
-    while(current != '"')
+    while(current != '"' && current != EOF && filename_dim < 255)
     {
-        filename[filename_dim] = current;
+        t->data[filename_dim] = (float)current;
         filename_dim++;
         current = fgetc(file);
     }
-    filename[filename_dim] = '\0';
-    push(stack, filename);
+    t->data[filename_dim] = '\0';
+    t->size = filename_dim;
+    truncate_tensor_size(t);
+    push(stack, t);
+    return;
 }
 
 // questa operazione contiene uno switch e indirizza alle varie funzioni operazioni in base al char letto
@@ -191,10 +204,10 @@ void scegli_operazione(Stack* stack, char current, char* filename, int filename_
             drop(stack);
             break;
         case '(':
-            read_pgm(stack, filename, filename_dim);
+            read_pgm(stack);
             break;
         case ')':
-            write_pgm(stack, filename, filename_dim);
+            write_pgm(stack);
             break;
         case '{':
             read_file(stack);
