@@ -212,6 +212,9 @@ void scegli_operazione(Stack* stack, char current, char* filename, int filename_
         case '{':
             read_file(stack);
             break;
+        case '}':
+            write_file(stack);
+            break;
         default:
             // tornare errrore per char sconosciuto
             break;

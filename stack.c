@@ -123,7 +123,7 @@ Tensor* peek(Stack* stack)
     return t;
 }
 
-char*  pop_filename(Stack* stack)
+char* pop_filename(Stack* stack)
 {
     if(is_empty(stack))
     {

@@ -11,11 +11,17 @@ typedef struct {
     int shape[DIM];     // indica il numero di righe e di colonne
     int size;           // numero di elementi nel tensore (righe*colonne)
     float* data;        // puntatore ai dati
-    //FILE* fd;           // puntatore al file da accedere
     int ref_count;      // numero di riferimenti al tensore, per decidere se eliminarlo o no
-    //off_t offset;       // per saltare eventuali metadati 
     bool isFilename;    // se vera questo tensore contiene un file name in "data" e in "size" la lunghezza. gli altri campi sono ignorati
+    void* map_pointer;  // questo campo contiene il pointer alla mappatura cosi nella free_tensor la si può usare nella munmap
+    size_t map_size;   // come sopra, serve per la munmap nel caso il tensore sia inizializzato con '{'
 } Tensor;
+
+typedef struct {        // struct per il salvataggio dei file su disco con le operazioni '{' '}'
+    int32_t shape[DIM];
+    int32_t ndim;
+    off_t data_offset;
+} on_disk_tensor;
 
 Tensor* tensor_initialize_from_file(int mode, FILE* file);
 

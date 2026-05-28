@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <omp.h>
+#include <sys/mman.h>   // per la mmap
 #define INITIAL_TENSOR_SIZE 16
 
 // forward declaration necessarie per funzioni che sono definite dopo ma presenti in funzioni definite prima
@@ -62,6 +63,8 @@ Tensor* tensor_initialize_from_file(int mode, FILE* file)
 
     tensor->ref_count = 1;
     tensor->isFilename = false;
+    tensor->map_pointer = NULL;
+    tensor->map_size = 0;
 
     if(mode == 0) {
         tensor->ndim = 1;
@@ -116,17 +119,17 @@ void truncate_tensor_size(Tensor* tensor)
 // elimina il tensore, ma prima fa il controllo del ref_count
 // prende in input il riferimento al tensore
 // output 0 se il tensore è stato eliminato, -1 altrimenti (se il ref_count non lo permette)
-int tensor_delete(Tensor* tensor)
-{
-    if(tensor->ref_count <= 0) {
-        free(tensor->data);
-        free(tensor);
-        tensor->data = NULL;
-        tensor = NULL;
-        return 0; // eliminato
-    }
-    return -1; // non eliminato
-}
+// int tensor_delete(Tensor* tensor)
+// {
+//     if(tensor->ref_count <= 0) {
+//         free(tensor->data);
+//         free(tensor);
+//         tensor->data = NULL;
+//         tensor = NULL;
+//         return 0; // eliminato
+//     }
+//     return -1; // non eliminato
+// }
 
 // aumenta il ref count di un tensore
 // prende in input il tensore
@@ -141,7 +144,7 @@ void increment_ref_count(Tensor* tensor)
 void decrement_ref_count(Tensor* tensor)
 {
     if(tensor->ref_count <= 0) {
-        tensor_delete(tensor);
+        free_tensor(&tensor);
     } else {
         tensor->ref_count--;
     }
@@ -157,11 +160,14 @@ void free_tensor(Tensor **tensor)
     (*tensor)->ref_count--;
     if((*tensor)->ref_count <= 0)
     {
-        free((*tensor)->data);
-        (*tensor)->data = NULL;
-        free(*tensor); //
+        if((*tensor)->map_pointer != NULL) {
+            munmap((*tensor)->map_pointer, (*tensor)->map_size);
+        } else {
+            free((*tensor)->data);
+            (*tensor)->data = NULL;
+        }
+        free(*tensor);
         (*tensor) = NULL;
-        return;
     }
 }
 
@@ -178,6 +184,8 @@ void tensor_structure_copy(Tensor* t1, Tensor* t2)
     t1->data = malloc(sizeof(float) * t1->size);
     t1->ref_count = 1;
     t1->isFilename = t2->isFilename;
+    t1->map_pointer = t2->map_pointer;
+    t1->map_size = t2->map_size;
     return;
 }
 
@@ -236,5 +244,8 @@ Tensor* tensor_copy(Tensor* t)
         new->data[i] = t->data[i];
     }
     new->ref_count = 1;
+    new->isFilename = t->isFilename;
+    new->map_pointer = t->map_pointer;
+    new->map_size = t->map_size;
     return new;
 }

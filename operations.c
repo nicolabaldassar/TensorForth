@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <sys/mman.h>   // per la mmap
 #include <sys/stat.h>   // per la stat
+#include <string.h>   // per la strlen
 #include <omp.h>
 #include <time.h> // usato per la rand_tens per generare un tensore sempre diverso, capire se serve
 
@@ -268,6 +269,9 @@ void matrix_prod(Stack* stack)
     t->shape[1] = b->shape[1];
     t->size = t->shape[0] * t->shape[1];
     t->ref_count = 1;
+    t->isFilename = false;
+    t->map_pointer = NULL;
+    t->map_size = 0;
     t->data = malloc(sizeof(float) * t->size);
     #pragma omp parallel for
     for(int i = 0; i < t->size; i++) {
@@ -305,6 +309,9 @@ void dot_prod(Stack* stack)
     t->size = 1;
     t->data = malloc(sizeof(float) * t->size);
     t->ref_count = 1;
+    t->isFilename = false;
+    t->map_pointer = NULL;
+    t->map_size = 0;
     float sum = 0.0f;
     #pragma omp parallel for reduction(+:sum)
     for(int i = 0; i < a->size; i++) {
@@ -434,6 +441,9 @@ void get_dim(Stack* stack)
     t->shape[1] = 2;
     t->size = 2;
     t->ref_count = 1;
+    t->isFilename = false;
+    t->map_pointer = NULL;
+    t->map_size = 0;
     t->data = malloc(sizeof(float) * t->size);
     t->data[0] = a->shape[0];
     t->data[1] = a->shape[1];
@@ -459,6 +469,9 @@ void rand_tens(Stack* stack)
     t->size = t->shape[0] * t->shape[1];
     t->data = malloc(sizeof(float) * t->size);
     t->ref_count = 1;
+    t->isFilename = false;
+    t->map_pointer = NULL;
+    t->map_size = 0;
     srand(time(NULL));
     for(int i = 0; i < t->size; i++) {
         t->data[i] = (float)rand() / (float)RAND_MAX ;
@@ -534,6 +547,9 @@ void somma_tens(Stack* stack)
     t->shape[0] = 1;
     t->shape[1] = 1;
     t->ref_count = 1;
+    t->isFilename = false;
+    t->map_pointer = NULL;
+    t->map_size = 0;
     t->data = malloc(sizeof(float) * t->size);
     float sum = 0;
     #pragma omp parallel for reduction(+:sum)
@@ -569,6 +585,9 @@ void fill(Stack* stack)
     }
     t->data = malloc(sizeof(float) * t->size);
     t->ref_count = 1;
+    t->isFilename = false;
+    t->map_pointer = NULL;
+    t->map_size = 0;
     #pragma omp parallel for
     for(int i = 0; i < t->size; i++) {
         t->data[i] = v->data[i % v->size];
@@ -667,7 +686,7 @@ void read_pgm(Stack* stack)
 		exit(EXIT_FAILURE);
     }
     size = buffer.st_size;
-    data = mmap((void*)0, size, PROT_READ, MAP_SHARED, fileno(file), 0);
+    data = mmap((void*)0, size, PROT_READ, MAP_PRIVATE, fileno(file), 0);
     if(data == MAP_FAILED) {
 		printf("Errore nel mappare in memoria il file. ");
 		fclose(file);
@@ -684,6 +703,9 @@ void read_pgm(Stack* stack)
     t->shape[1] = width;
     t->size = t->shape[0] * t->shape[1];
     t->ref_count = 1;
+    t->isFilename = false;
+    t->map_pointer = NULL;
+    t->map_size = 0;
     t->data = malloc(sizeof(float) * t->size);
     unsigned char* pixels = (unsigned char*)data + offset;
     #pragma omp parallel for
@@ -692,6 +714,7 @@ void read_pgm(Stack* stack)
     }
     push(stack, t);
     munmap(data, size);
+    free(filename);
     fclose(file);
     return;
 }
@@ -706,7 +729,6 @@ void write_pgm(Stack* stack)
         exit(EXIT_FAILURE);
     }
     Tensor* t = pop(stack);
-    //resize_tensor(t, 3, 4);
 
     fprintf(file, "P5\n%d %d\n255\n", t->shape[1], t->shape[0]);
     unsigned char* data = malloc(sizeof(unsigned char) * t->size);
@@ -735,5 +757,74 @@ void write_pgm(Stack* stack)
 
 void read_file(Stack* stack)
 {
+    char* filename = pop_filename(stack);
+    FILE* file = fopen(filename, "rb");
+    if(file == NULL)
+    {
+        printf("Errore nell'apertura del file.\n");
+        exit(EXIT_FAILURE);
+    }
+    struct stat buffer;
+    if(stat(filename, &buffer) == -1) {
+        printf("Errore nel salvataggio della size\n");
+		fclose(file);
+		exit(EXIT_FAILURE);
+    }
+    // mappatura del file
+    void* mapped_tensor = mmap((void*)0, buffer.st_size, PROT_READ, MAP_PRIVATE, fileno(file), 0);
+    if(mapped_tensor == MAP_FAILED) {
+        printf("Errore nella mappatura del file.\n");
+        fclose(file);
+        free(filename);
+        exit(EXIT_FAILURE);
+    }
+    on_disk_tensor* odt = (on_disk_tensor*) mapped_tensor;
+    // riempiamo il tensore coi dati mappati
+    Tensor* t = malloc(sizeof(Tensor));
+    t->shape[0] = odt->shape[0];
+    t->shape[1] = odt->shape[1];
+    t->size = t->shape[0] * t->shape[1];
+    t->ndim = odt->ndim;
+    t->data = (float*)((uint8_t*)mapped_tensor + odt->data_offset);
+    t->map_pointer = mapped_tensor;
+    t->map_size = buffer.st_size;
+    t->ref_count = 1;
+    t->isFilename = false;
+    free(filename);
+    fclose(file);
+    push(stack, t);
+    return;
+}
+
+void write_file(Stack* stack)
+{
+    char* filename = pop_filename(stack);
+    FILE* file = fopen(filename, "wb");
+    if(file == NULL)
+    {
+        printf("Errore nell'apertura del file.\n");
+        exit(EXIT_FAILURE);
+    }
+    Tensor* t = pop(stack);
+    // riempiamo la struct che andremo a salvare su disco
+    on_disk_tensor odt;
+    odt.shape[0] = t->shape[0];
+    odt.shape[1] = t->shape[1];
+    odt.ndim = t->ndim;
+    odt.data_offset = 64;
+
+    // scrittura della struct
+    fwrite(&odt, sizeof(odt), 1, file);
+
+    // scrittura del padding
+    uint8_t padding[64 - sizeof(odt)] = {0};    // uso uint8_t perché ognuno pesa 8 bit (1 byte)
+    fwrite(padding, 1, sizeof(padding), file);
+
+    // scrittura dei dati
+    fwrite(t->data, sizeof(float), t->size, file);
+
+    free_tensor(&t);
+    free(filename);
+    fclose(file);
     return;
 }
