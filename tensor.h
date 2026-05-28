@@ -23,7 +23,7 @@ typedef struct {        // struct per il salvataggio dei file su disco con le op
     off_t data_offset;
 } on_disk_tensor;
 
-Tensor* tensor_initialize_from_file(int mode, FILE* file);
+Tensor* tensor_initialize_from_file(FILE* file);
 
 void truncate_tensor_size(Tensor* tensor);
 

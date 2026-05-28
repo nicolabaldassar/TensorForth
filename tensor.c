@@ -11,10 +11,8 @@
 void check_tensor_size(Tensor* tensor, int* temp_size);
 void truncate_tensor_size(Tensor* tensor);
 
-// questa funzione va ad inizializzare il tensore
-// mode = 0 se vai inizializzato in una dimensione, mode = 1 se va inizializzato a due dimensioni (matrice)
-// viene passata la modalità e il file che preso in input dal programma
-Tensor* tensor_initialize_from_file(int mode, FILE* file)
+// questa funzione va ad inizializzare il tensore da file -tensorforth
+Tensor* tensor_initialize_from_file(FILE* file)
 {
     char current;
     char buffer[256];
@@ -65,15 +63,9 @@ Tensor* tensor_initialize_from_file(int mode, FILE* file)
     tensor->isFilename = false;
     tensor->map_pointer = NULL;
     tensor->map_size = 0;
-
-    if(mode == 0) {
-        tensor->ndim = 1;
-        tensor->shape[0] = 1;
-        tensor->shape[1] = tensor->size;;
-    } else {
-        tensor->ndim = 2;
-        // da inizializzare la shape della matrice
-    }
+    tensor->ndim = 1;
+    tensor->shape[0] = 1;
+    tensor->shape[1] = tensor->size;
 
     return tensor;
 }

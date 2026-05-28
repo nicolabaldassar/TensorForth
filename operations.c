@@ -459,13 +459,20 @@ void rand_tens(Stack* stack)
         exit(EXIT_FAILURE);
     }
     Tensor* t = malloc(sizeof(Tensor));
-    if(s->data[0] == 1) {
+
+    if(s->size == 1) {
         t->ndim = 1;
-    } else {
+        t->shape[0] = 1;
+        t->shape[1] = s->data[0];
+    } else if(s->size == 2 && s->data[0] == 1) {
+        t->ndim = 1;
+        t->shape[0] = 1;
+        t->shape[1] = s->data[1];
+    } else if (s->size == 2 && s->data[0] != 1) {
         t->ndim = 2;
+        t->shape[0] = s->data[0];
+        t->shape[1] = s->data[1];
     }
-    t->shape[0] = s->data[0];
-    t->shape[1] = s->data[1];
     t->size = t->shape[0] * t->shape[1];
     t->data = malloc(sizeof(float) * t->size);
     t->ref_count = 1;

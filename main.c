@@ -49,7 +49,7 @@ void scorri_file(FILE* file, Stack* stack)
         switch(current)
         {
             case '[':
-                Tensor* tensor = tensor_initialize_from_file(0, file);
+                Tensor* tensor = tensor_initialize_from_file(file);
                 push(stack, tensor);
                 break;
             case '"':
