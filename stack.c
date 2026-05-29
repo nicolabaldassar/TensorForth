@@ -48,7 +48,6 @@ int resize_stack(Stack* stack)
     {
         stack->dim *= 2;
         stack->tensors_pointer = realloc(stack->tensors_pointer, sizeof(Tensor*) * stack->dim);
-        printf("    (La dimensione dello stack è aumentata a: %d)\n", stack->dim);
         return 2;
     }
     
@@ -57,7 +56,6 @@ int resize_stack(Stack* stack)
     {
         stack->dim = stack->dim / 2;
         stack->tensors_pointer = realloc(stack->tensors_pointer, sizeof(Tensor*) * stack->dim);
-        printf("    (La dimensione dello stack è diminuita a: %d)\n", stack->dim);
         return 1;
     }
 
@@ -155,4 +153,13 @@ char* pop_filename(Stack* stack)
 
     return filename;
 
+}
+
+
+void free_stack(Stack** stack)
+{
+    free((*stack)->tensors_pointer);
+    (*stack)->tensors_pointer = NULL;
+    free(*stack);
+    (*stack) = NULL;
 }

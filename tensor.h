@@ -14,7 +14,7 @@ typedef struct {
     int ref_count;      // numero di riferimenti al tensore, per decidere se eliminarlo o no
     bool isFilename;    // se vera questo tensore contiene un file name in "data" e in "size" la lunghezza. gli altri campi sono ignorati
     void* map_pointer;  // questo campo contiene il pointer alla mappatura cosi nella free_tensor la si può usare nella munmap
-    size_t map_size;   // come sopra, serve per la munmap nel caso il tensore sia inizializzato con '{'
+    size_t map_size;    // come sopra, serve per la munmap nel caso il tensore sia inizializzato con '{'
 } Tensor;
 
 typedef struct {        // struct per il salvataggio dei file su disco con le operazioni '{' '}'

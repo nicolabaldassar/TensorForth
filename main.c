@@ -31,6 +31,7 @@ int main (int argc, char* argv[])
     scorri_file(file, &stack);
 
     fclose(file);
+    free_stack(&stack);
     return 0;
 }
 
