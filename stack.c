@@ -48,6 +48,10 @@ int resize_stack(Stack* stack)
     {
         stack->dim *= 2;
         stack->tensors_pointer = realloc(stack->tensors_pointer, sizeof(Tensor*) * stack->dim);
+        if(stack->tensors_pointer == NULL) {
+            printf("Errore nella realloc.\n");
+            exit(EXIT_FAILURE);
+        }
         return 2;
     }
     
@@ -56,6 +60,10 @@ int resize_stack(Stack* stack)
     {
         stack->dim = stack->dim / 2;
         stack->tensors_pointer = realloc(stack->tensors_pointer, sizeof(Tensor*) * stack->dim);
+        if(stack->tensors_pointer == NULL) {
+            printf("Errore nella realloc.\n");
+            exit(EXIT_FAILURE);
+        }
         return 1;
     }
 
@@ -92,12 +100,12 @@ Tensor* pop(Stack* stack)
     }
     if(t->ref_count > 1) {
         Tensor* t_copy = tensor_copy(t);
-        t->ref_count--;
+        //t->ref_count--;
         stack->top--;
         resize_stack(stack);
         return t_copy;
     }        
-    t->ref_count--;
+    //t->ref_count--;
     stack->top--;
     resize_stack(stack);
     return t;
@@ -137,7 +145,7 @@ char* pop_filename(Stack* stack)
         printf("L'elemento estratto dallo stack non è un filename valido.\n");
         exit(EXIT_FAILURE);
     }
-    t->ref_count--;
+    //t->ref_count--;
     stack->top--;
     resize_stack(stack);
 
@@ -156,10 +164,11 @@ char* pop_filename(Stack* stack)
 }
 
 
-void free_stack(Stack** stack)
+void free_stack(Stack* stack)
 {
-    free((*stack)->tensors_pointer);
-    (*stack)->tensors_pointer = NULL;
-    free(*stack);
-    (*stack) = NULL;
+    for(int i = 0; i < stack->top; i++) {
+        free_tensor(&stack->tensors_pointer[i]);
+    }
+    free(stack->tensors_pointer);
+    stack->tensors_pointer = NULL;
 }

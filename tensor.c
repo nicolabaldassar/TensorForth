@@ -148,7 +148,7 @@ void decrement_ref_count(Tensor* tensor)
 // bisogna passarli l'indirizzo del tensore &tensor
 void free_tensor(Tensor **tensor)
 {
-    if(tensor == NULL || *tensor == NULL) return;
+    if(tensor == NULL || (*tensor) == NULL) return;
     (*tensor)->ref_count--;
     if((*tensor)->ref_count <= 0)
     {

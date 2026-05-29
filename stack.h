@@ -29,6 +29,6 @@ Tensor* peek(Stack* stack);                 // ritorna il tensore in testa senza
 
 char* pop_filename(Stack* stack);           // prende il filename dallo stack e popola la stringa passata col suo contenuto
 
-void free_stack(Stack** stack);              // libera la memoria dello stack a fine esecuzione del programma
+void free_stack(Stack* stack);              // libera la memoria dello stack a fine esecuzione del programma
 
 #endif
