@@ -7,7 +7,7 @@
 
 void scorri_file(FILE* file, Stack* stack);
 void salva_filename(Stack* stack, FILE* file);
-void scegli_operazione(Stack* stack, char current, char* filename, int filename_dim);
+void scegli_operazione(Stack* stack, char current);
 
 int main (int argc, char* argv[])
 {
@@ -15,13 +15,13 @@ int main (int argc, char* argv[])
     if(argc != 2)
     {
         printf("Errore nel numero di file passati in input.\n");
-        return -1;
+        exit(EXIT_FAILURE);
     }
     FILE* file = fopen(argv[1], "r");
     if(file == NULL)
     {
         printf("Errore nell'apertura del file.\n");
-        return -1;
+        exit(EXIT_FAILURE);
     }
 
     //
@@ -39,9 +39,7 @@ int main (int argc, char* argv[])
 // viene passato il file che stiamo leggendo e lo stack
 void scorri_file(FILE* file, Stack* stack)
 {
-    char current;
-    char filename[256];
-    int filename_dim = 0;
+    int current;
     while(1)
     {
         current = fgetc(file);
@@ -49,12 +47,12 @@ void scorri_file(FILE* file, Stack* stack)
             break;
         switch(current)
         {
-            case '[':
+            case '[': {
                 Tensor* tensor = tensor_initialize_from_file(file);
                 push(stack, tensor);
                 break;
+            }
             case '"':
-                //filename_dim = riempi_filename(file, filename);
                 salva_filename(stack, file);
                 break;
             case '\n':
@@ -70,25 +68,6 @@ void scorri_file(FILE* file, Stack* stack)
     return;
 }
 
-// questa funzione scrive il nome di un file di input/output su una variabile "filename", pronta ad essere usata
-// viene chiamata quando viene letto il carattere doppio apice
-// prende in input il file da cui stiamo leggendo e il puntatore alla stringa su cui scrivere
-// int riempi_filename(FILE* file, char* filename)
-// {
-//     char current;
-//     int filename_dim = 0;
-//     current = fgetc(file);
-//     do
-//     {
-//         filename[filename_dim] = current;
-//         current = fgetc(file);
-//         filename_dim++;
-//     }
-//     while(current != '"');
-//     filename[filename_dim] = '\0';
-//     return filename_dim;
-// }
-
 void salva_filename(Stack* stack, FILE* file)
 {
     Tensor* t = malloc(sizeof(Tensor));
@@ -100,7 +79,7 @@ void salva_filename(Stack* stack, FILE* file)
     t->ndim = 0;
     t->shape[0] = 0;
     t->shape[1] = 0;
-    t->ref_count = 0;
+    t->ref_count = 1;
     //
     char current;
     current = fgetc(file);
@@ -114,7 +93,6 @@ void salva_filename(Stack* stack, FILE* file)
     t->size = filename_dim;
     truncate_tensor_size(t);
     push(stack, t);
-    return;
 }
 
 // questa operazione contiene uno switch e indirizza alle varie funzioni operazioni in base al char letto
@@ -217,7 +195,8 @@ void scegli_operazione(Stack* stack, char current, char* filename, int filename_
             write_file(stack);
             break;
         default:
-            // tornare errrore per char sconosciuto
+            printf("Errore, carattere sconosciuto.\n");
+            exit(EXIT_FAILURE);
             break;
     }
 }
