@@ -1,14 +1,15 @@
 #ifndef TENSOR_H
 #define TENSOR_H
 
-#define DIM 2
+#define MAX_DIM 2
 
 #include <stdio.h>      // ha senso fare un header comune per gli include?? capire
 #include <sys/types.h>
+#include <stdbool.h>
 
 typedef struct {
     int ndim;           // numero di dimensioni del tensore
-    int shape[DIM];     // indica il numero di righe e di colonne
+    int shape[MAX_DIM];     // indica il numero di righe e di colonne
     int size;           // numero di elementi nel tensore (righe*colonne)
     float* data;        // puntatore ai dati
     int ref_count;      // numero di riferimenti al tensore, per decidere se eliminarlo o no
@@ -18,7 +19,7 @@ typedef struct {
 } Tensor;
 
 typedef struct {        // struct per il salvataggio dei file su disco con le operazioni '{' '}'
-    int32_t shape[DIM];
+    int32_t shape[MAX_DIM];
     int32_t ndim;
     off_t data_offset;
 } on_disk_tensor;

@@ -104,24 +104,10 @@ void truncate_tensor_size(Tensor* tensor)
     } else {
         free(tensor->data);
         printf("Errore nel troncare la dimensione del tensore.\n");
-        return;
+        exit(EXIT_FAILURE);
     }
 }
 
-// elimina il tensore, ma prima fa il controllo del ref_count
-// prende in input il riferimento al tensore
-// output 0 se il tensore è stato eliminato, -1 altrimenti (se il ref_count non lo permette)
-// int tensor_delete(Tensor* tensor)
-// {
-//     if(tensor->ref_count <= 0) {
-//         free(tensor->data);
-//         free(tensor);
-//         tensor->data = NULL;
-//         tensor = NULL;
-//         return 0; // eliminato
-//     }
-//     return -1; // non eliminato
-// }
 
 // aumenta il ref count di un tensore
 // prende in input il tensore
@@ -133,14 +119,9 @@ void increment_ref_count(Tensor* tensor)
 
 // decrementa il ref_count e se questo diventa 0 elimina il tensore
 // prende in input il riferimento al tensore
-void decrement_ref_count(Tensor* tensor)
+void decrement_ref_count(Tensor** tensor)
 {
-    if(tensor->ref_count <= 0) {
-        free_tensor(&tensor);
-    } else {
-        tensor->ref_count--;
-    }
-    return;
+    free_tensor(tensor);
 }
 
 // questa funzione fa la free e setta a NULL sia il tensor->data che il tensore stesso
@@ -176,8 +157,8 @@ void tensor_structure_copy(Tensor* t1, Tensor* t2)
     t1->data = malloc(sizeof(float) * t1->size);
     t1->ref_count = 1;
     t1->isFilename = t2->isFilename;
-    t1->map_pointer = t2->map_pointer;
-    t1->map_size = t2->map_size;
+    t1->map_pointer = NULL;
+    t1->map_size = 0;
     return;
 }
 
@@ -206,13 +187,12 @@ bool is_binary_tensor(Tensor* t)
     if(t == NULL)
         exit(EXIT_FAILURE);
     if(t->isFilename) {
-        printf("Impossibile eseguire quesa operazione su un filename.\n");
+        printf("Impossibile eseguire questa operazione su un filename.\n");
         exit(EXIT_FAILURE);
     }
     int r = 0;
-    #pragma omp parallel for shared(r)
+    #pragma omp parallel for reduction(||:r)
     for(int i = 0; i < t->size; i++) {
-        if(r) continue;
         if(t->data[i] != 0.0 && t->data[i] != 1.0) {
             r = 1;
         }
@@ -226,18 +206,18 @@ Tensor* tensor_copy(Tensor* t)
         printf("Impossibile eseguire quesa operazione su un filename.\n");
         exit(EXIT_FAILURE);
     }
-    Tensor* new = malloc(sizeof(Tensor));
-    new->ndim = t->ndim;
-    new->shape[0] = t->shape[0];
-    new->shape[1] = t->shape[1];
-    new->size = t->size;
-    new->data = malloc(sizeof(float) * new->size);
-    for(int i = 0; i < new->size; i++) {
-        new->data[i] = t->data[i];
+    Tensor* new_tensor = malloc(sizeof(Tensor));
+    new_tensor->ndim = t->ndim;
+    new_tensor->shape[0] = t->shape[0];
+    new_tensor->shape[1] = t->shape[1];
+    new_tensor->size = t->size;
+    new_tensor->data = malloc(sizeof(float) * new_tensor->size);
+    for(int i = 0; i < new_tensor->size; i++) {
+        new_tensor->data[i] = t->data[i];
     }
-    new->ref_count = 1;
-    new->isFilename = t->isFilename;
-    new->map_pointer = t->map_pointer;
-    new->map_size = t->map_size;
-    return new;
+    new_tensor->ref_count = 1;
+    new_tensor->isFilename = t->isFilename;
+    new_tensor->map_pointer = NULL;
+    new_tensor->map_size = 0;
+    return new_tensor;
 }
