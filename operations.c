@@ -5,7 +5,6 @@
 #include <sys/stat.h>   // per la stat
 #include <string.h>   // per la strlen
 #include <omp.h>
-#include <time.h> // usato per la rand_tens per generare un tensore sempre diverso, capire se serve
 
 // consuma i due tensori in cima allo stack e ne crea un terzo che è la loro somma
 // prende in input lo stack
@@ -14,7 +13,7 @@ void somma(Stack* stack)
     Tensor* t1 = pop(stack);
     Tensor* t2 = pop(stack);
     Tensor* t3 = malloc(sizeof(Tensor));
-    if(t1->size != t2->size) {
+    if(t1->shape[0] != t2->shape[0] || t1->shape[1] != t2->shape[1]) {
         printf("Errore! Stai provando a fare una somma con tensori di dimensione diversa.\n");
         exit(EXIT_FAILURE);
     } else {
@@ -28,7 +27,6 @@ void somma(Stack* stack)
     push(stack, t3);
     free_tensor(&t1);
     free_tensor(&t2);
-    return;
 }
 
 // consuma i due tensori in cima allo stack e ne crea un terzo che è la loro differenza
@@ -38,7 +36,7 @@ void differenza(Stack* stack)
     Tensor* t1 = pop(stack);
     Tensor* t2 = pop(stack);
     Tensor* t3 = malloc(sizeof(Tensor));
-    if(t1->size != t2->size) {
+    if(t1->shape[0] != t2->shape[0] || t1->shape[1] != t2->shape[1]) {
         printf("Errore! Stai provando a fare una differenza con tensori di dimensione diversa.\n");
         exit(EXIT_FAILURE);
     } else {
@@ -62,7 +60,7 @@ void prodotto(Stack* stack)
     Tensor* t1 = pop(stack);
     Tensor* t2 = pop(stack);
     Tensor* t3 = malloc(sizeof(Tensor));
-    if(t1->size != t2->size) {
+    if(t1->shape[0] != t2->shape[0] || t1->shape[1] != t2->shape[1]) {
         printf("Errore! Stai provando a fare un prodotto con tensori di dimensione diversa.\n");
         exit(EXIT_FAILURE);
     } else {
@@ -84,7 +82,7 @@ void minore(Stack* stack)
     Tensor* t1 = pop(stack);
     Tensor* t2 = pop(stack);
     Tensor* t3 = malloc(sizeof(Tensor));
-    if(t1->size != t2->size) {
+    if(t1->shape[0] != t2->shape[0] || t1->shape[1] != t2->shape[1]) {
         printf("Errore! Stai provando a fare una comparazione tra tensori di dimensione diversa.\n");
         exit(EXIT_FAILURE);
     } else {
@@ -92,11 +90,7 @@ void minore(Stack* stack)
         #pragma omp parallel for
         for(int i = 0; i < t1->size; i++)
         {
-            if(t1->data[i] < t2->data[i]) {
-                t3->data[i] = 1.0f;
-            } else {
-                t3->data[i] = 0.0f;
-            }
+            t3->data[i] = (t1->data[i] < t2->data[i]);
         }
     }
     push(stack, t3);
@@ -110,7 +104,7 @@ void maggiore(Stack* stack)
     Tensor* t1 = pop(stack);
     Tensor* t2 = pop(stack);
     Tensor* t3 = malloc(sizeof(Tensor));
-    if(t1->size != t2->size) {
+    if(t1->shape[0] != t2->shape[0] || t1->shape[1] != t2->shape[1]) {
         printf("Errore! Stai provando a fare una comparazione tra tensori di dimensione diversa.\n");
         exit(EXIT_FAILURE);
     } else {
@@ -118,11 +112,7 @@ void maggiore(Stack* stack)
         #pragma omp parallel for
         for(int i = 0; i < t1->size; i++)
         {
-            if(t1->data[i] > t2->data[i]) {
-                t3->data[i] = 1.0;
-            } else {
-                t3->data[i] = 0.0;
-            }
+            t3->data[i] = (t1->data[i] > t2->data[i]);
         }
     }
     push(stack, t3);
@@ -136,7 +126,7 @@ void uguale(Stack* stack)
     Tensor* t1 = pop(stack);
     Tensor* t2 = pop(stack);
     Tensor* t3 = malloc(sizeof(Tensor));
-    if(t1->size != t2->size) {
+    if(t1->shape[0] != t2->shape[0] || t1->shape[1] != t2->shape[1]) {
         printf("Errore! Stai provando a fare una comparazione tra tensori di dimensione diversa.\n");
         exit(EXIT_FAILURE);
     } else {
@@ -144,11 +134,7 @@ void uguale(Stack* stack)
         #pragma omp parallel for
         for(int i = 0; i < t1->size; i++)
         {
-            if(t1->data[i] == t2->data[i]) {
-                t3->data[i] = 1.0f;
-            } else {
-                t3->data[i] = 0.0f;
-            }
+            t3->data[i] = (t1->data[i] == t2->data[i]);
         }
     }
     push(stack, t3);
@@ -163,7 +149,7 @@ void and_logico(Stack* stack)
     Tensor* b = pop(stack);
     Tensor* t = malloc(sizeof(Tensor));
     tensor_structure_copy(t, a);
-    if(a->size != b->size) {
+    if(a->shape[0] != b->shape[0] || a->shape[1] != b->shape[1]) {
         printf("I tensori di un'operazione di comparazione devono essere della stessa dimensione.\n");
         exit(EXIT_FAILURE);
     }
@@ -187,7 +173,7 @@ void or_logico(Stack* stack)
     Tensor* b = pop(stack);
     Tensor* t = malloc(sizeof(Tensor));
     tensor_structure_copy(t, a);
-    if(a->size != b->size) {
+    if(a->shape[0] != b->shape[0] || a->shape[1] != b->shape[1]) {
         printf("I tensori di un'operazione di comparazione devono essere della stessa dimensione.\n");
         exit(EXIT_FAILURE);
     }
@@ -216,11 +202,7 @@ void negazione(Stack* stack)
     tensor_structure_copy(t, a);
     #pragma omp parallel for
     for(int i = 0; i < t->size; i++) {
-        if(a->data[i] == 0.0) {
-            t->data[i] = 1.0f;
-        } else {
-            t->data[i] = 0.0f;
-        }
+        t->data[i] = 1.0f - a->data[i];
     }
     push(stack, t);
     free_tensor(&a);
@@ -272,11 +254,7 @@ void matrix_prod(Stack* stack)
     t->isFilename = false;
     t->map_pointer = NULL;
     t->map_size = 0;
-    t->data = malloc(sizeof(float) * t->size);
-    #pragma omp parallel for
-    for(int i = 0; i < t->size; i++) {
-        t->data[i] = 0.0f;
-    }
+    t->data = calloc(t->size, sizeof(float));   // calloc inizializza a zero
     #pragma omp parallel for collapse(2)
     for(int i = 0; i < t->shape[0]; i++) {
         for(int j = 0; j < t->shape[1]; j++) {
@@ -347,12 +325,10 @@ void convoluzione(Stack* stack)
     a_padding->shape[1] = a->shape[1] + x_padding_to_add * 2;
     a_padding->size = a_padding->shape[0] * a_padding->shape[1];
     a_padding->ref_count = 1;
-    a_padding->data = malloc(sizeof(float) * a_padding->size);
-    // riempo la matrice di zeri
-    #pragma omp parallel for
-    for(int i = 0; i < a_padding->size; i++) {
-        a_padding->data[i] = 0;
-    }
+    a_padding->data = calloc(a_padding->size, sizeof(float));
+    a_padding->map_pointer = NULL;
+    a_padding->map_size = 0;
+    a_padding->isFilename = false;
     // riempio la matrice con a
     #pragma omp parallel for collapse(2)
     for(int i = 0; i < a->shape[0]; i++) {
@@ -479,7 +455,6 @@ void rand_tens(Stack* stack)
     t->isFilename = false;
     t->map_pointer = NULL;
     t->map_size = 0;
-    srand(time(NULL));
     for(int i = 0; i < t->size; i++) {
         t->data[i] = (float)rand() / (float)RAND_MAX ;
     }

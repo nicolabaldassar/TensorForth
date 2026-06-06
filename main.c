@@ -1,6 +1,7 @@
 // Nicola Baldassar SM3201596
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "stack.h"
 #include "tensor.h"
 #include "operations.h"
@@ -26,6 +27,8 @@ int main (int argc, char* argv[])
 
     //
     Stack stack = initialize_stack();
+
+    srand(time(NULL));
     
     // lettura del file
     scorri_file(file, &stack);
@@ -61,7 +64,7 @@ void scorri_file(FILE* file, Stack* stack)
                 break;
             default:
                 //operazione
-                scegli_operazione(stack, current, filename, filename_dim);
+                scegli_operazione(stack, current);
                 break;
         }
     }
@@ -97,7 +100,7 @@ void salva_filename(Stack* stack, FILE* file)
 
 // questa operazione contiene uno switch e indirizza alle varie funzioni operazioni in base al char letto
 // prende in input lo stack e il carattere letto
-void scegli_operazione(Stack* stack, char current, char* filename, int filename_dim)
+void scegli_operazione(Stack* stack, char current)
 {
     switch(current)
     {
