@@ -467,9 +467,7 @@ void relu(Stack* stack)
     Tensor* a = pop(stack);
     #pragma omp parallel for
     for(int i = 0; i < a->size; i++) {
-        if(a->data[i] < 0) {
-            a->data[i] = 0.0f;
-        }
+        a->data[i] *= (a->data[i] > 0);
     }
     push(stack, a);
 }
@@ -486,11 +484,7 @@ void min(Stack* stack)
     tensor_structure_copy(t, a);
     #pragma omp parallel for
     for(int i = 0; i < t->size; i++) {
-        if(a->data[i] < b->data[i]) {
-            t->data[i] = a->data[i];
-        } else {
-            t->data[i] = b->data[i];
-        }
+        t->data[i] = a->data[i] * (a->data[i] < b->data[i]) + b->data[i] * (1 - (a->data[i] < b->data[i]));
     }
     push(stack, t);
     free_tensor(&a);
@@ -509,11 +503,7 @@ void max(Stack* stack)
     tensor_structure_copy(t, a);
     #pragma omp parallel for
     for(int i = 0; i < t->size; i++) {
-        if(a->data[i] > b->data[i]) {
-            t->data[i] = a->data[i];
-        } else {
-            t->data[i] = b->data[i];
-        }
+        t->data[i] = a->data[i] * (a->data[i] > b->data[i]) + b->data[i] * (1 - (a->data[i] > b->data[i]));
     }
     push(stack, t);
     free_tensor(&a);
@@ -590,7 +580,7 @@ void print_tens(Stack* stack)
         printf("%f ", t->data[i]);
     }
     printf("])\n");
-    //free_tensor(&t);
+    free_tensor(&t);    // serve o no???
     return;
 }
 
@@ -621,6 +611,10 @@ void swap(Stack* stack)
 
 void over(Stack* stack)
 {
+    if(stack->top < 1) {
+        printf("Lo stack non ha sufficienti elementi per eseguire la over.\n");
+        exit(EXIT_FAILURE);
+    }
     Tensor* t = stack->tensors_pointer[stack->top - 1];
     stack->tensors_pointer[stack->top - 1]->ref_count++;
     push(stack, t);
@@ -732,6 +726,7 @@ void write_pgm(Stack* stack)
         exit(EXIT_FAILURE);
     }
     free(data);
+    free(filename);
     fclose(file);
     free_tensor(&t);
 }
@@ -753,7 +748,7 @@ void read_file(Stack* stack)
 		exit(EXIT_FAILURE);
     }
     // mappatura del file
-    void* mapped_tensor = mmap((void*)0, buffer.st_size, PROT_READ, MAP_PRIVATE, fileno(file), 0);
+    void* mapped_tensor = mmap((void*)0, buffer.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fileno(file), 0);
     if(mapped_tensor == MAP_FAILED) {
         printf("Errore nella mappatura del file.\n");
         fclose(file);
