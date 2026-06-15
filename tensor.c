@@ -24,38 +24,50 @@ Tensor* tensor_initialize_from_file(FILE* file)
     tensor->size = 0;
     
     tensor->data = malloc(sizeof(float) * INITIAL_TENSOR_SIZE);
+
     current = fgetc(file);
-    do
+    while(current != ']')
     {
-        if(spazio == true) {
-            if(current_size > 0) {
-                tensor->data[tensor->size] = atof(buffer);
-                tensor->size++;
-                check_tensor_size(tensor, &temp_size);
-                current_size = 0;
-                memset(buffer, 0, sizeof(buffer));  // svuoto il buffer se ho scritto il numero corrente
-            }
-            if(isspace(current) == 0) {  // se è diverso da " "
-                printf("Errore nella forma del tensore.\n");
+        if(spazio == true)
+        {
+            if(isspace(current) == 0) {  // se non è spazio: errore
+                printf("Errore nella forma del tensore (spazio non presente)\n");
                 exit(EXIT_FAILURE);
-            } else {
-                spazio = false;
             }
-        } else {
-            while(isspace(current) != 0) {  // se è " "
+            while(isspace(current) != 0)  // consuma tutti gli spazi
                 current = fgetc(file);
-            }
-            if(isdigit(current) || current == '.' || current == '-') {
-                buffer[current_size] = current;
-                current_size++;
-                current = fgetc(file);
-                if(!isdigit(current) && current != '.' && current != '-') {
-                    spazio = true;
-                }
-            }
+            spazio = false;
+            continue;   // ricomincia il while saltando tutto il resto
         }
-    } while(current != ']');
-    // errore se manca lo spazio finale
+
+        if(current == ']') break;  // fine tensore
+
+        if(isdigit(current) || current == '.' || current == '-') {
+            buffer[current_size] = current;
+            current_size++;
+        } else {
+            // carattere sconosciuto
+            printf("Errore nella forma del tensore (carattere inatteso: '%c')\n", current);
+            exit(EXIT_FAILURE);
+        }
+
+        current = fgetc(file);
+
+        if(isspace(current) != 0 || current == ']')  // fine del numero
+        {
+            if(current == ']' ) {  // ']' senza spazio prima: errore
+                printf("Errore nella forma del tensore (spazio non presente)\n");
+                exit(EXIT_FAILURE);
+             }
+            buffer[current_size] = '\0';
+            tensor->data[tensor->size] = atof(buffer);
+            tensor->size++;
+            check_tensor_size(tensor, &temp_size);
+            current_size = 0;
+            memset(buffer, 0, sizeof(buffer));
+            spazio = true;
+        }
+    }
 
     truncate_tensor_size(tensor);
 

@@ -22,7 +22,7 @@ bool is_full(Stack* stack);
 
 void resize_stack(Stack* stack);
 
-void push(Stack* stack, Tensor* tensor;
+void push(Stack* stack, Tensor* tensor);
 
 Tensor* pop(Stack* stack);
 

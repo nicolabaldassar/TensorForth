@@ -13,7 +13,7 @@ void scegli_operazione(Stack* stack, char current);
 // nel main viene aperto il file da leggere, inizializzato lo stack, e chiamata
 // la funzione che legge il file elemento per elemento;
 // una volta finito di leggere il file questo viene chiuso e lo spazio dello stack liberato.
-int main (int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     // apertura file e gestione degli errori
     if(argc != 2)
