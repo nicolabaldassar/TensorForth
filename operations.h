@@ -62,7 +62,4 @@ void write_pgm(Stack* stack);
 void read_file(Stack* stack);
 void write_file(Stack* stack);
 
-
-
-
 #endif

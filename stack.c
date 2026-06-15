@@ -5,7 +5,6 @@
 #include "tensor.h"
 #define INITIAL_DIM 8
 
-
 // questa funzione viene chiamata nel main per creare e inizializzare lo stack
 // non ha input, torna un riferimento allo stack inizializzato
 Stack initialize_stack()
@@ -37,11 +36,10 @@ bool is_full(Stack* stack)
         return false;
 }
 
-// questa funzione fa un controllo sulla dimensione dello stack e agisce di conseguenza
-// se lo stack è pieno lo raddoppia, se è pieno per meno di 1/4 lo dimezza, non fa nulla altrimenti
-// ritorna 0 se non fa nulla, 1 se dimezza lo stack, 2 se lo raddoppia
+// questa funzione fa un controllo sulla dimensione dello stack e agisce di conseguenza:
+// se lo stack è pieno lo raddoppia, se è pieno per meno di 1/4 lo dimezza, non fa nulla altrimenti.
 // prende in input lo stack
-int resize_stack(Stack* stack)
+void resize_stack(Stack* stack)
 {
     // controllo se è pieno lo stack, in caso raddoppia
     if(is_full(stack))
@@ -52,7 +50,7 @@ int resize_stack(Stack* stack)
             printf("Errore nella realloc.\n");
             exit(EXIT_FAILURE);
         }
-        return 2;
+        return;
     }
     
     // controllo se è occupato per meno di 1/4, in caso dimezzo
@@ -64,14 +62,14 @@ int resize_stack(Stack* stack)
             printf("Errore nella realloc.\n");
             exit(EXIT_FAILURE);
         }
-        return 1;
+        return;
     }
 
-    return 0;
+    return;
 }
 
-// funzione che carica un tensore nello stack
-// viene passato lo stack e il tensore da ricaricare
+// funzione che carica un tensore in cima allo stack
+// viene passato lo stack e il tensore da caricare
 void push(Stack* stack, Tensor* tensor)
 {
     resize_stack(stack);
@@ -79,8 +77,8 @@ void push(Stack* stack, Tensor* tensor)
     stack->tensors_pointer[stack->top] = tensor;
 }
 
-// funzione che estrae il tensore più in testa allo stack e decrementa l'indice del tensore in cima allo stack
-// tuttavia non lo elimina dallo stack, questo sarà compito di chiama la pop()
+// funzione che estrae il tensore più in testa allo stack e decrementa l'indice del tensore in cima allo stack;
+// tuttavia non lo elimina dallo stack, questo sarà compito di chi chiama la pop(), attraverso una free_tensor()
 // viene passato lo stack
 Tensor* pop(Stack* stack)
 {
@@ -100,12 +98,10 @@ Tensor* pop(Stack* stack)
     }
     if(t->ref_count > 1) {
         Tensor* t_copy = tensor_copy(t);
-        //t->ref_count--;
         stack->top--;
         resize_stack(stack);
         return t_copy;
     }        
-    //t->ref_count--;
     stack->top--;
     resize_stack(stack);
     return t;
@@ -129,6 +125,7 @@ Tensor* peek(Stack* stack)
     return t;
 }
 
+// viene chiamata quando si vuole estrarre dalla cima dello stack un nome di file, salvato come filename, una tipologia di tensore
 char* pop_filename(Stack* stack)
 {
     if(is_empty(stack))
@@ -163,7 +160,7 @@ char* pop_filename(Stack* stack)
 
 }
 
-
+// chiamata alla fine del main libera lo spazio occupato dallo stack e da ciò che contiene
 void free_stack(Stack* stack)
 {
     for(int i = 0; i < stack->top; i++) {

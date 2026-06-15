@@ -1,10 +1,14 @@
 // Nicola Baldassar SM3201596
 #include "operations.h"
 #include <stdlib.h>
-#include <sys/mman.h>   // per la mmap
-#include <sys/stat.h>   // per la stat
-#include <string.h>   // per la strlen
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <string.h>
 #include <omp.h>
+
+
+// non sarà commentato lo scopo di tutte le funzioni riguardanti le operazioni in quanto già ben definite
+// nella consegna
 
 // consuma i due tensori in cima allo stack e ne crea un terzo che è la loro somma
 // prende in input lo stack

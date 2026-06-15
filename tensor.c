@@ -4,14 +4,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <omp.h>
-#include <sys/mman.h>   // per la mmap
+#include <sys/mman.h>
 #define INITIAL_TENSOR_SIZE 16
 
 // forward declaration necessarie per funzioni che sono definite dopo ma presenti in funzioni definite prima
 void check_tensor_size(Tensor* tensor, int* temp_size);
 void truncate_tensor_size(Tensor* tensor);
 
-// questa funzione va ad inizializzare il tensore da file -tensorforth
+// questa funzione va ad inizializzare un tensore dal file di input quando trova il carattere '['
 Tensor* tensor_initialize_from_file(FILE* file)
 {
     char current;
@@ -20,7 +20,7 @@ Tensor* tensor_initialize_from_file(FILE* file)
     bool spazio = true;
     int temp_size = INITIAL_TENSOR_SIZE;
 
-    Tensor* tensor = malloc(sizeof(Tensor));    // inizializzo sullo stack cosi poi con la free lo posso liberare nella free_tensor
+    Tensor* tensor = malloc(sizeof(Tensor));
     tensor->size = 0;
     
     tensor->data = malloc(sizeof(float) * INITIAL_TENSOR_SIZE);
@@ -119,6 +119,8 @@ void increment_ref_count(Tensor* tensor)
 
 // decrementa il ref_count e se questo diventa 0 elimina il tensore
 // prende in input il riferimento al tensore
+// fa quello che fa la free_tensor, infatti la chiama, ma per chiarezza manteniamo due funzioni distinte
+// cosi da non confondersi nella lettura del codice
 void decrement_ref_count(Tensor** tensor)
 {
     free_tensor(tensor);
@@ -126,7 +128,7 @@ void decrement_ref_count(Tensor** tensor)
 
 // questa funzione fa la free e setta a NULL sia il tensor->data che il tensore stesso
 // si passa un puntatore al tensore e lo ripulisce completamente liberando tutta la memoria che usa
-// bisogna passarli l'indirizzo del tensore &tensor
+// bisogna passarli l'indirizzo del tensore ( &tensor )
 void free_tensor(Tensor **tensor)
 {
     if(tensor == NULL || (*tensor) == NULL) return;
@@ -164,6 +166,7 @@ void tensor_structure_copy(Tensor* t1, Tensor* t2)
 
 // questa funzione cambia la forma di un tensore
 // viene passato il tensore e il nuovo numero di righe e colonne
+// la size deve corrispondere al prodotto di righe per colonne
 void resize_tensor(Tensor* t, int rows, int cols)
 {
     if(t == NULL)
@@ -181,7 +184,9 @@ void resize_tensor(Tensor* t, int rows, int cols)
     t->shape[1] = cols;
 }
 
-
+// controlla se un tensore è composto solamente da 0 e 1, controllo ricorrente per alcune operazioni
+// prende in input il tensore da controllare
+// ritorna 0 se non è binario, 1 altrimenti
 bool is_binary_tensor(Tensor* t)
 {
     if(t == NULL)
@@ -200,6 +205,7 @@ bool is_binary_tensor(Tensor* t)
     return !r;
 }
 
+// ritorna un puntatore a un nuovo tensore completamente identico a quello passato in input
 Tensor* tensor_copy(Tensor* t)
 {
     if(t->isFilename) {

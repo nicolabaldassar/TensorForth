@@ -10,6 +10,9 @@ void scorri_file(FILE* file, Stack* stack);
 void salva_filename(Stack* stack, FILE* file);
 void scegli_operazione(Stack* stack, char current);
 
+// nel main viene aperto il file da leggere, inizializzato lo stack, e chiamata
+// la funzione che legge il file elemento per elemento;
+// una volta finito di leggere il file questo viene chiuso e lo spazio dello stack liberato.
 int main (int argc, char* argv[])
 {
     // apertura file e gestione degli errori
@@ -38,8 +41,8 @@ int main (int argc, char* argv[])
     return 0;
 }
 
-// questa funzione serve per alleggerire il main e contiene tutto l'iter per la lettura del file .tensorforth in input
-// viene passato il file che stiamo leggendo e lo stack
+// riceve lo stack e il file di input e lo legge elemento per elemento, chiamando le dovute funzioni
+// in base al carattere letto
 void scorri_file(FILE* file, Stack* stack)
 {
     int current;
@@ -71,6 +74,8 @@ void scorri_file(FILE* file, Stack* stack)
     return;
 }
 
+// viene chiamata quando il carattere letto sono delle virgolette alte, indicando l'inizio di un
+// nome di file che deve essere salvato sullo stack per essere poi utilizzato
 void salva_filename(Stack* stack, FILE* file)
 {
     Tensor* t = malloc(sizeof(Tensor));
@@ -98,7 +103,7 @@ void salva_filename(Stack* stack, FILE* file)
     push(stack, t);
 }
 
-// questa operazione contiene uno switch e indirizza alle varie funzioni operazioni in base al char letto
+// questa operazione contiene uno switch e indirizza alle varie funzioni operazioni in base al carattere letto
 // prende in input lo stack e il carattere letto
 void scegli_operazione(Stack* stack, char current)
 {
