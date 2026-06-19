@@ -46,6 +46,8 @@ int main(int argc, char* argv[])
 void scorri_file(FILE* file, Stack* stack)
 {
     int current;
+    // variabile per controllare che ci sia sempre almeno uno spazio fra i token
+    bool dopo_token = false;
     while(1)
     {
         current = fgetc(file);
@@ -54,20 +56,37 @@ void scorri_file(FILE* file, Stack* stack)
         switch(current)
         {
             case '[': {
+                if(dopo_token) {
+                    printf("Errore! Spazio mancante tra i token.\n");
+                    exit(EXIT_FAILURE);
+                }
                 Tensor* tensor = tensor_initialize_from_file(file);
                 push(stack, tensor);
+                dopo_token = true;
                 break;
             }
             case '"':
+                if(dopo_token) {
+                    printf("Errore! Spazio mancante tra i token.\n");
+                    exit(EXIT_FAILURE);
+                }
                 salva_filename(stack, file);
+                dopo_token = true;
                 break;
             case '\n':
+                dopo_token = false;
                 break;
             case ' ':
+                dopo_token = false;
                 break;
             default:
+                if(dopo_token) {
+                    printf("Errore! Spazio mancante tra i token.\n");
+                    exit(EXIT_FAILURE);
+                }
                 //operazione
                 scegli_operazione(stack, current);
+                dopo_token = true;
                 break;
         }
     }

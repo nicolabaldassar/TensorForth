@@ -47,7 +47,7 @@ Tensor* tensor_initialize_from_file(FILE* file)
             current_size++;
         } else {
             // carattere sconosciuto
-            printf("Errore nella forma del tensore (carattere inatteso: '%c')\n", current);
+            printf("Errore nella forma del tensore (carattere inatteso: '%c').\n", current);
             exit(EXIT_FAILURE);
         }
 
