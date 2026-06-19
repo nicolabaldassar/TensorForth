@@ -2,22 +2,21 @@
 CC = gcc-15
 CFLAGS = -O3 -fopenmp
 
-main: main.o stack.o tensor.o operations.o
+tensorforth: tensorforth.o stack.o tensor.o operations.o
 	$(CC) $(CFLAGS) $^ -o $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $<
 
-main.o: main.c stack.h tensor.h operations.h
+tensorforth.o: tensorforth.c stack.h tensor.h operations.h
 
 stack.o: stack.c stack.h tensor.h
 
 tensor.o: tensor.c tensor.h 
 
-operations.o: operations.c operations.h stack.h
+operations.o: operations.c operations.h stack.h tensor.h
 
-.PHONY: all clean
+.PHONY: clean
 
 clean:
-	rm *.o
-	rm main
+	rm -f *.o tensorforth
