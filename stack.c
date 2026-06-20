@@ -52,7 +52,6 @@ void resize_stack(Stack* stack)
         }
         return;
     }
-    
     // controllo se è occupato per meno di 1/4, in caso dimezzo
     if(stack->top <= (stack->dim / 4) && stack->dim > INITIAL_DIM)
     {
@@ -64,7 +63,6 @@ void resize_stack(Stack* stack)
         }
         return;
     }
-
     return;
 }
 
@@ -100,6 +98,7 @@ Tensor* pop(Stack* stack)
         Tensor* t_copy = tensor_copy(t);
         stack->top--;
         resize_stack(stack);
+        free_tensor(&t);
         return t_copy;
     }        
     stack->top--;
@@ -142,12 +141,10 @@ char* pop_filename(Stack* stack)
         printf("L'elemento estratto dallo stack non è un filename valido.\n");
         exit(EXIT_FAILURE);
     }
-    //t->ref_count--;
     stack->top--;
     resize_stack(stack);
 
     // scriviamo nella stringa passata il contenuto di filename
-
     char* filename = malloc(sizeof(char) * (t->size + 1));
     //ciclo corto arriva al massimo a 256, non ha senso parallelizzare
     for(int i = 0; i < t->size; i++) {
@@ -163,7 +160,7 @@ char* pop_filename(Stack* stack)
 // chiamata alla fine del main libera lo spazio occupato dallo stack e da ciò che contiene
 void free_stack(Stack* stack)
 {
-    for(int i = 0; i < stack->top; i++) {
+    for(int i = 0; i <= stack->top; i++) {
         free_tensor(&stack->tensors_pointer[i]);
     }
     free(stack->tensors_pointer);

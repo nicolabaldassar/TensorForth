@@ -22,9 +22,13 @@ Tensor* tensor_initialize_from_file(FILE* file)
 
     Tensor* tensor = malloc(sizeof(Tensor));
     tensor->size = 0;
-    
     tensor->data = malloc(sizeof(float) * INITIAL_TENSOR_SIZE);
-
+    tensor->ref_count = 1;
+    tensor->isFilename = false;
+    tensor->map_pointer = NULL;
+    tensor->map_size = 0;
+    tensor->ndim = 1;
+    tensor->shape[0] = 1;
     current = fgetc(file);
     while(current != ']')
     {
@@ -68,17 +72,8 @@ Tensor* tensor_initialize_from_file(FILE* file)
             spazio = true;
         }
     }
-
     truncate_tensor_size(tensor);
-
-    tensor->ref_count = 1;
-    tensor->isFilename = false;
-    tensor->map_pointer = NULL;
-    tensor->map_size = 0;
-    tensor->ndim = 1;
-    tensor->shape[0] = 1;
     tensor->shape[1] = tensor->size;
-
     return tensor;
 }
 

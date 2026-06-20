@@ -3,9 +3,10 @@
 #define TENSOR_H
 #define MAX_DIM 2
 
-#include <stdio.h>      // ha senso fare un header comune per gli include?? capire
+#include <stdio.h>
 #include <sys/types.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef struct {
     int ndim;               // numero di dimensioni del tensore

@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <omp.h>
-
+#include <stdint.h>
 
 // non sarà commentato lo scopo di tutte le funzioni riguardanti le operazioni in quanto già ben definite
 // nella consegna
@@ -152,12 +152,12 @@ void and_logico(Stack* stack)
     tensor_structure_copy(t, a);
     // controllo dimensioni
     if(a->shape[0] != b->shape[0] || a->shape[1] != b->shape[1]) {
-        printf("I tensori di un'operazione di comparazione devono essere della stessa dimensione.\n");
+        printf("I tensori di un'operazione di logica devono essere della stessa dimensione.\n");
         exit(EXIT_FAILURE);
     }
     // controllo che entrambi i tensori siano binari
     if(!is_binary_tensor(a) || !is_binary_tensor(b)) {
-        printf("I tensori di un'operazione di comparazione devono essere composti solo da 0 e 1.\n");
+        printf("I tensori di un'operazione di logica devono essere composti solo da 0 e 1.\n");
         exit(EXIT_FAILURE);
     }
     #pragma omp parallel for
@@ -177,11 +177,11 @@ void or_logico(Stack* stack)
     Tensor* t = malloc(sizeof(Tensor));
     tensor_structure_copy(t, a);
     if(a->shape[0] != b->shape[0] || a->shape[1] != b->shape[1]) {
-        printf("I tensori di un'operazione di comparazione devono essere della stessa dimensione.\n");
+        printf("I tensori di un'operazione di logica devono essere della stessa dimensione.\n");
         exit(EXIT_FAILURE);
     }
     if(!is_binary_tensor(a) || !is_binary_tensor(b)) {
-        printf("I tensori di un'operazione di comparazione devono essere composti solo da 0 e 1.\n");
+        printf("I tensori di un'operazione di logica devono essere composti solo da 0 e 1.\n");
         exit(EXIT_FAILURE);
     }
     #pragma omp parallel for
@@ -199,7 +199,7 @@ void negazione(Stack* stack)
     Tensor* a = pop(stack);
     // controllo che il tensore sia binario
     if(!is_binary_tensor(a)) {
-        printf("I tensori di un'operazione di comparazione devono essere composti solo da 0 e 1.\n");
+        printf("I tensori di un'operazione di logica devono essere composti solo da 0 e 1.\n");
         exit(EXIT_FAILURE);
     }
     Tensor* t = malloc(sizeof(Tensor));
@@ -808,7 +808,7 @@ void write_file(Stack* stack)
     }
     Tensor* t = pop(stack);
     // riempiamo la struct che andremo a salvare su disco
-    on_disk_tensor odt;
+    on_disk_tensor odt = {0};
     odt.shape[0] = t->shape[0];
     odt.shape[1] = t->shape[1];
     odt.ndim = t->ndim;

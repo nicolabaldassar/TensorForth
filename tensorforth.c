@@ -27,15 +27,11 @@ int main(int argc, char* argv[])
         printf("Errore nell'apertura del file.\n");
         exit(EXIT_FAILURE);
     }
-
     //
     Stack stack = initialize_stack();
-
     srand(time(NULL));
-    
     // lettura del file
     scorri_file(file, &stack);
-
     fclose(file);
     free_stack(&stack);
     return 0;
@@ -102,11 +98,13 @@ void salva_filename(Stack* stack, FILE* file)
     int filename_dim = 0;
     t->data = malloc(sizeof(float) * t->size);
     t->isFilename = true;
-    // allochiamo per sicurezza valori non necessari in quanto Filename
+    // allochiamo per sicurezza questi valori, anche se non necessari in quanto Filename
     t->ndim = 0;
     t->shape[0] = 0;
     t->shape[1] = 0;
     t->ref_count = 1;
+    t->map_pointer = NULL;
+    t->map_size = 0;
     //
     char current;
     current = fgetc(file);
